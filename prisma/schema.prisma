@@ -1,0 +1,86 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+  moduleFormat = "cjs"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id String @id @default(uuid())
+
+  email String @unique
+  password String
+
+  displayName String
+  picture String?
+
+  role UserRole @default(REGULAR) 
+
+  isActivated Boolean @default(false) @map("is_activated")
+  isTwoFactorEnabled Boolean @default(false) @map("is_two_factor_enabled")
+
+  method AuthMethod
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  account Account[]
+
+  @@map("users")
+}
+
+model Account {
+  id String @id @default(uuid())
+
+  type String
+  provider String
+
+  refreshToken String? @map("refresh_token")
+  accessToken String? @map("access_token")
+  expiresAt String? @map("expires_at")
+
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String? @map("user_id")
+
+  @@map("account")
+
+}
+
+model Token {
+  id String @id @default(uuid())
+
+  email String
+  token String @unique
+  type TokenType
+  expiresIn DateTime @map("expires_in")
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+
+  @@map("token")
+}
+
+enum UserRole {
+  REGULAR
+  ADMIN
+}
+
+enum AuthMethod {
+  CREDENTIALS
+  GOOGLE
+  YANDEX
+  TELEGRAM
+}
+
+enum TokenType {
+  VERIFICATION
+  is_two_factor_enabled
+  PASSWORD_RESET
+}
