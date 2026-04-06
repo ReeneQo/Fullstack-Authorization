@@ -46,7 +46,7 @@ export class AuthController {
 	}
 
 	@Post('login')
-	@UseFilters(new UnauthorizedExceptionFilter())
+	// @UseFilters(new UnauthorizedExceptionFilter())
 	@HttpCode(HttpStatus.CREATED)
 	login(@Req() req: Request, @Body() dto: LoginDto) {
 		return this.authService.login(req, dto);
