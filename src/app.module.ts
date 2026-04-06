@@ -8,6 +8,8 @@ import { ProviderModule } from './provider/provider.module';
 import { RedisModule } from './redis/redis.module';
 import { UserModule } from './user/user.module';
 import { TelegramModule } from './telegram/telegram.module';
+import { MailModule } from './libs/mail/mail.module'
+import { MailConfirmationModule } from './mail-confirmation/mail-confirmation.module';
 
 @Module({
 	imports: [
@@ -21,7 +23,9 @@ import { TelegramModule } from './telegram/telegram.module';
 		AuthModule,
 		UserModule,
 		ProviderModule,
-		TelegramModule
+		TelegramModule,
+		MailModule,
+		MailConfirmationModule
 	]
 })
 export class AppModule implements NestModule {

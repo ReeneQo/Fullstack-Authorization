@@ -3,12 +3,12 @@ import * as argon2 from 'argon2';
 import { type Request, Response } from 'express';
 import { type User } from 'generated/prisma/client';
 import { AuthMethod } from 'generated/prisma/enums';
-import * as querystring from 'querystring';
-import * as url from 'url';
 
+import { MailConfirmationService } from '@/mail-confirmation/mail-confirmation.service';
 import { PrismaService } from '@/prisma/prisma.service';
 import { ProviderService } from '@/provider/provider.service';
 import { UserService } from '@/user/user.service';
+import { forwardRef, Inject } from '@nestjs/common';
 import {
 	BadGatewayException,
 	ConflictException,
@@ -19,7 +19,6 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
-import { Payload } from './../../generated/prisma/internal/prismaNamespace';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 
@@ -29,7 +28,9 @@ export class AuthService {
 		public readonly prismaService: PrismaService,
 		public readonly userService: UserService,
 		private readonly configService: ConfigService,
-		private readonly providerService: ProviderService
+		private readonly providerService: ProviderService,
+		@Inject(forwardRef(() => MailConfirmationService))
+		private readonly emailConfirmationService: MailConfirmationService
 	) {}
 	// метод регистрации пользователя
 	async register(req: Request, dto: RegisterDto) {
@@ -52,6 +53,8 @@ export class AuthService {
 			false,
 			AuthMethod.CREDENTIALS
 		);
+
+		await this.emailConfirmationService.sendVerificationToken(newUser);
 		// и просто возвращаем нового юзера
 		return this.saveSession(req, newUser);
 	}
@@ -73,6 +76,13 @@ export class AuthService {
 		if (!isValidPassword) {
 			throw new UnauthorizedException(
 				'Incorrect password, pls try again or reset password'
+			);
+		}
+
+		if (!user.isActivated) {
+			await this.emailConfirmationService.sendVerificationToken(user);
+			throw new UnauthorizedException(
+				'Ваш email не подтвержден. Пожалуйста, проверьте вашу почту и подтвердите адрес'
 			);
 		}
 
