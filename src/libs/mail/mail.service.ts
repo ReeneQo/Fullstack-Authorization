@@ -5,6 +5,7 @@ import { render } from '@react-email/render';
 
 import { ConfirmEmailTemplate } from './templates/confirm.template';
 import { ResetPasswordTemplate } from './templates/resetPassword.template';
+import { TwoFactorAuthTemplate } from './templates/two-factor-auth.template';
 
 @Injectable()
 export class MailService {
@@ -25,6 +26,12 @@ export class MailService {
 		const html = await render(ResetPasswordTemplate({ domain, token }));
 
 		return this.sendEmail(email, 'Сброс пароля', html);
+	}
+
+	public async sendTwoFactorAuthEmail(email: string, token: string) {
+		const html = await render(TwoFactorAuthTemplate({ token }));
+
+		return this.sendEmail(email, 'Подтверждение вашей личности', html);
 	}
 
 	private sendEmail(email: string, subject: string, html: string) {

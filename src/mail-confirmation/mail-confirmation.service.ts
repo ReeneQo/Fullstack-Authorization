@@ -30,7 +30,7 @@ export class MailConfirmationService {
 	) {}
 
 	public async newVerificationToken(req: Request, dto: ConfirmationDto) {
-		const existingToken = await this.prismaService.token.findFirst({
+		const existingToken = await this.prismaService.token.findUnique({
 			where: {
 				token: dto.token,
 				type: TokenType.VERIFICATION
@@ -78,9 +78,9 @@ export class MailConfirmationService {
 		return this.authService.saveSession(req, existingUser);
 	}
 
-	public async sendVerificationToken(user: User) {
+	public async sendVerificationToken(email: string) {
 		const verificationToken = await this.tokenService.generate(
-			user.email,
+			email,
 			TokenType.VERIFICATION,
 			3600 * 1000
 		);
