@@ -5,6 +5,7 @@ import { v4 } from 'uuid';
 
 import { AuthService } from '@/auth/auth.service';
 import { MailService } from '@/libs/mail/mail.service';
+import { TokenService } from '@/token-service/token-service.service';
 import { UserService } from '@/user/user.service';
 import {
 	BadRequestException,
@@ -24,7 +25,8 @@ export class MailConfirmationService {
 		private readonly mailService: MailService,
 		private readonly userService: UserService,
 		@Inject(forwardRef(() => AuthService))
-		private readonly authService: AuthService
+		private readonly authService: AuthService,
+		private readonly tokenService: TokenService
 	) {}
 
 	public async newVerificationToken(req: Request, dto: ConfirmationDto) {
@@ -77,45 +79,17 @@ export class MailConfirmationService {
 	}
 
 	public async sendVerificationToken(user: User) {
-		const verificationToken = this.generateVerificationToken(user.email);
+		const verificationToken = await this.tokenService.generate(
+			user.email,
+			TokenType.VERIFICATION,
+			3600 * 1000
+		);
 
 		await this.mailService.sendConfirmationEmail(
-			(await verificationToken).email,
-			(await verificationToken).token
+			verificationToken.email,
+			verificationToken.token
 		);
 
 		return true;
-	}
-
-	private async generateVerificationToken(email: string) {
-		const token = v4();
-		const expiresIn = new Date(new Date().getTime() + 3600 * 1000);
-
-		const existingToken = await this.prismaService.token.findFirst({
-			where: {
-				email: email,
-				type: TokenType.VERIFICATION
-			}
-		});
-
-		if (existingToken) {
-			await this.prismaService.token.delete({
-				where: {
-					id: existingToken.id,
-					type: TokenType.VERIFICATION
-				}
-			});
-		}
-
-		const verificationToken = await this.prismaService.token.create({
-			data: {
-				email,
-				token,
-				expiresIn,
-				type: TokenType.VERIFICATION
-			}
-		});
-
-		return verificationToken;
 	}
 }

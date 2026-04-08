@@ -10,6 +10,8 @@ import { UserModule } from './user/user.module';
 import { TelegramModule } from './telegram/telegram.module';
 import { MailModule } from './libs/mail/mail.module'
 import { MailConfirmationModule } from './mail-confirmation/mail-confirmation.module';
+import { PasswordResetModule } from './password-reset/password-reset.module';
+import { TokenServiceModule } from './token-service/token-service.module';
 
 @Module({
 	imports: [
@@ -25,7 +27,9 @@ import { MailConfirmationModule } from './mail-confirmation/mail-confirmation.mo
 		ProviderModule,
 		TelegramModule,
 		MailModule,
-		MailConfirmationModule
+		MailConfirmationModule,
+		PasswordResetModule,
+		TokenServiceModule
 	]
 })
 export class AppModule implements NestModule {
