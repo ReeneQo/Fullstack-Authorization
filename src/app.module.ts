@@ -12,6 +12,7 @@ import { MailModule } from './libs/mail/mail.module'
 import { MailConfirmationModule } from './mail-confirmation/mail-confirmation.module';
 import { PasswordResetModule } from './password-reset/password-reset.module';
 import { TokenServiceModule } from './token-service/token-service.module';
+import { TwoFactorAuthModule } from './auth/two-factor-auth/two-factor-auth.module';
 
 @Module({
 	imports: [
@@ -29,7 +30,8 @@ import { TokenServiceModule } from './token-service/token-service.module';
 		MailModule,
 		MailConfirmationModule,
 		PasswordResetModule,
-		TokenServiceModule
+		TokenServiceModule,
+		TwoFactorAuthModule
 	]
 })
 export class AppModule implements NestModule {

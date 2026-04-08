@@ -1,4 +1,10 @@
-import { IsEmail, IsNotEmpty, IsString, MinLength } from 'class-validator';
+import {
+	IsEmail,
+	IsNotEmpty,
+	IsOptional,
+	IsString,
+	MinLength
+} from 'class-validator';
 
 // dtoшка через класс и библиотеку class validator
 export class LoginDto {
@@ -16,4 +22,8 @@ export class LoginDto {
 	@IsNotEmpty({ message: 'Поле не может быть пустым' })
 	@MinLength(6, { message: 'Минимум 6 символов' })
 	password: string;
+
+	@IsOptional()
+	@IsString()
+	code: string;
 }

@@ -8,8 +8,13 @@ import { Injectable } from '@nestjs/common';
 export class TokenService {
 	public constructor(private readonly prismaService: PrismaService) {}
 
-	public async generate(email: string, type: TokenType, expiresInMs: number) {
-		const token = v4();
+	public async generate(
+		email: string,
+		type: TokenType,
+		expiresInMs: number,
+		customToken?: string
+	) {
+		const token = customToken ?? v4();
 		const expiresIn = new Date(new Date().getTime() + expiresInMs);
 
 		const existingToken = await this.prismaService.token.findFirst({
