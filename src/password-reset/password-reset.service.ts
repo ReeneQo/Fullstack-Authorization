@@ -4,7 +4,6 @@ import { TokenType } from 'generated/prisma/enums';
 import { MailService } from '@/libs/mail/mail.service';
 import { PrismaService } from '@/prisma/prisma.service';
 import { TokenService } from '@/token-service/token-service.service';
-import { UserService } from '@/user/user.service';
 import {
 	BadRequestException,
 	Injectable,
@@ -17,11 +16,14 @@ export class PasswordResetService {
 		private readonly prismaService: PrismaService,
 		private readonly tokenService: TokenService,
 		private readonly mailService: MailService,
-		private readonly userService: UserService,
 	) {}
 
 	public async requestEmail(email: string) {
-		const user = await this.userService.findByEmail(email);
+		const user = await this.prismaService.user.findUnique({
+			where: {
+				email: email
+			}
+		});
 
 		if (!user) {
 			return true;
@@ -61,9 +63,11 @@ export class PasswordResetService {
 			);
 		}
 
-		const existingUser = await this.userService.findByEmail(
-			existingToken.email
-		);
+		const existingUser = await this.prismaService.user.findUnique({
+			where: {
+				email: existingToken.email
+			}
+		});
 
 		if (!existingUser) {
 			throw new NotFoundException(

@@ -13,6 +13,7 @@ import { MailConfirmationModule } from './mail-confirmation/mail-confirmation.mo
 import { PasswordResetModule } from './password-reset/password-reset.module';
 import { TokenServiceModule } from './token-service/token-service.module';
 import { TwoFactorAuthModule } from './auth/two-factor-auth/two-factor-auth.module';
+import { SessionsModule } from './sessions/sessions.module';
 
 @Module({
 	imports: [
@@ -31,7 +32,8 @@ import { TwoFactorAuthModule } from './auth/two-factor-auth/two-factor-auth.modu
 		MailConfirmationModule,
 		PasswordResetModule,
 		TokenServiceModule,
-		TwoFactorAuthModule
+		TwoFactorAuthModule,
+		SessionsModule
 	]
 })
 export class AppModule implements NestModule {

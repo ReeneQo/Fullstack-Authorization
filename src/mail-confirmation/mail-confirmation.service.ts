@@ -5,6 +5,7 @@ import { v4 } from 'uuid';
 
 import { AuthService } from '@/auth/auth.service';
 import { MailService } from '@/libs/mail/mail.service';
+import { SessionsService } from '@/sessions/sessions.service';
 import { TokenService } from '@/token-service/token-service.service';
 import { UserService } from '@/user/user.service';
 import {
@@ -12,6 +13,7 @@ import {
 	forwardRef,
 	Inject,
 	Injectable,
+	InternalServerErrorException,
 	NotFoundException
 } from '@nestjs/common';
 
@@ -23,10 +25,8 @@ export class MailConfirmationService {
 	public constructor(
 		private readonly prismaService: PrismaService,
 		private readonly mailService: MailService,
-		private readonly userService: UserService,
-		@Inject(forwardRef(() => AuthService))
-		private readonly authService: AuthService,
-		private readonly tokenService: TokenService
+		private readonly tokenService: TokenService,
+		private readonly sessionsService: SessionsService
 	) {}
 
 	public async newVerificationToken(req: Request, dto: ConfirmationDto) {
@@ -49,9 +49,11 @@ export class MailConfirmationService {
 			);
 		}
 
-		const existingUser = await this.userService.findByEmail(
-			existingToken.email
-		);
+		const existingUser = await this.prismaService.user.findUnique({
+			where: {
+				email: existingToken.email
+			}
+		});
 
 		if (!existingUser) {
 			throw new NotFoundException(
@@ -75,7 +77,7 @@ export class MailConfirmationService {
 			}
 		});
 
-		return this.authService.saveSession(req, existingUser);
+		return this.sessionsService.saveSession(req, existingUser);
 	}
 
 	public async sendVerificationToken(email: string) {
