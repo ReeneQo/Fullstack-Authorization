@@ -58,20 +58,6 @@ export class AuthController {
 		return this.authService.logout(req, res);
 	}
 
-	@UsePipes(toLowerCasePipe)
-	@Post('movie')
-	@HttpCode(HttpStatus.OK)
-	create(@Body('id', new ParseIdIntoNumber()) id: number) {
-		return `Title: ${typeof id}`;
-	}
-
-	@Get('me')
-	getProfile(@userAgent() user: string) {
-		return {
-			user
-		};
-	}
-
 	@UseGuards(providerGuard)
 	@Get('/oauth/callback/:provider')
 	public async callback(
@@ -111,7 +97,6 @@ export class AuthController {
 	@HttpCode(HttpStatus.OK)
 	@Post('oauth/telegram/verify')
 	public telegramVerifyData(@Body() body: TelegramUserDto) {
-		console.log(body);
 		return body;
 	}
 }

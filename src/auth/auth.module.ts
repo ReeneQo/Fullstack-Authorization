@@ -1,11 +1,11 @@
 import { providerConfig } from '@/config/provider.config';
 import { getRecaptchaConfig } from '@/config/recaptcha.config';
 import { MailModule } from '@/libs/mail/mail.module';
-import { MailService } from '@/libs/mail/mail.service';
 import { MailConfirmationModule } from '@/mail-confirmation/mail-confirmation.module';
 import { ProviderModule } from '@/provider/provider.module';
+import { SessionsModule } from '@/sessions/sessions.module';
 import { TokenServiceModule } from '@/token-service/token-service.module';
-import { UserService } from '@/user/user.service';
+import { UserModule } from '@/user/user.module';
 import { forwardRef, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { GoogleRecaptchaModule } from '@nestlab/google-recaptcha';
@@ -27,12 +27,15 @@ import { TwoFactorAuthService } from './two-factor-auth/two-factor-auth.service'
 			useFactory: providerConfig,
 			inject: [ConfigService]
 		}),
-		forwardRef(() => MailConfirmationModule),
 		MailModule,
-		TokenServiceModule
+		TokenServiceModule,
+		forwardRef(() => UserModule),
+		SessionsModule,
+		forwardRef(() => MailConfirmationModule),
+		TwoFactorAuthModule
 	],
 	controllers: [AuthController],
-	providers: [AuthService, UserService, TwoFactorAuthService],
+	providers: [AuthService],
 	exports: [AuthService]
 })
 export class AuthModule {}

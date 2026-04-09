@@ -1,7 +1,8 @@
 import * as crypto from 'crypto';
-import { type Request, Response } from 'express';
+import { type Request } from 'express';
 import { AuthMethod } from 'generated/prisma/enums';
 
+import { SessionsService } from '@/sessions/sessions.service';
 import { UserService } from '@/user/user.service';
 import {
 	ConflictException,
@@ -10,15 +11,14 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
-import { AuthService } from './../auth/auth.service';
 import { TelegramUserDto } from './dto/telegramUser.dto';
 
 @Injectable()
 export class TelegramService {
 	constructor(
 		private readonly configService: ConfigService,
-		private readonly authService: AuthService,
-		private readonly userService: UserService
+		private readonly userService: UserService,
+		private readonly sessionsService: SessionsService
 	) {}
 
 	async verifyHash(userDto: TelegramUserDto, req: Request) {
@@ -85,6 +85,6 @@ export class TelegramService {
 			true,
 			AuthMethod.TELEGRAM
 		);
-		return this.authService.saveSession(req, newUser);
+		return this.sessionsService.saveSession(req, newUser);
 	}
 }

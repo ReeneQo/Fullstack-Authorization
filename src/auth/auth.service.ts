@@ -7,6 +7,7 @@ import { AuthMethod } from 'generated/prisma/enums';
 import { MailConfirmationService } from '@/mail-confirmation/mail-confirmation.service';
 import { PrismaService } from '@/prisma/prisma.service';
 import { ProviderService } from '@/provider/provider.service';
+import { SessionsService } from '@/sessions/sessions.service';
 import { UserService } from '@/user/user.service';
 import { forwardRef, Inject } from '@nestjs/common';
 import {
@@ -27,12 +28,14 @@ import { TwoFactorAuthService } from './two-factor-auth/two-factor-auth.service'
 export class AuthService {
 	constructor(
 		public readonly prismaService: PrismaService,
+		@Inject(forwardRef(() => UserService))
 		public readonly userService: UserService,
 		private readonly configService: ConfigService,
 		private readonly providerService: ProviderService,
 		@Inject(forwardRef(() => MailConfirmationService))
 		private readonly emailConfirmationService: MailConfirmationService,
-		private readonly twoFactorService: TwoFactorAuthService
+		private readonly twoFactorService: TwoFactorAuthService,
+		private readonly sessionService: SessionsService
 	) {}
 	// метод регистрации пользователя
 	async register(req: Request, dto: RegisterDto) {
@@ -60,7 +63,7 @@ export class AuthService {
 			newUser.email
 		);
 		// и просто возвращаем нового юзера
-		return this.saveSession(req, newUser);
+		return this.sessionService.saveSession(req, newUser);
 	}
 
 	async login(req: Request, dto: LoginDto) {
@@ -108,7 +111,7 @@ export class AuthService {
 			);
 		}
 
-		return this.saveSession(req, user);
+		return this.sessionService.saveSession(req, user);
 	}
 
 	public async extractProfile(req: Request, provider: string, code: string) {
@@ -132,7 +135,7 @@ export class AuthService {
 			: null;
 
 		if (user) {
-			return this.saveSession(req, user);
+			return this.sessionService.saveSession(req, user);
 		}
 
 		user = await this.userService.createUser(
@@ -157,53 +160,10 @@ export class AuthService {
 			});
 		}
 
-		return this.saveSession(req, user);
+		return this.sessionService.saveSession(req, user);
 	}
 
 	async logout(req: Request, res: Response): Promise<void> {
-		return new Promise((resolve, reject) => {
-			req.session.destroy(err => {
-				if (err) {
-					reject(
-						new InternalServerErrorException(
-							'An error occured during the end of session. There may be an error with the server or the session has already been terminated'
-						)
-					);
-
-					res.clearCookie(
-						this.configService.getOrThrow('SESSION_NAME')
-					);
-					resolve();
-				}
-			});
-		});
-	}
-
-	//	функиця сохранения сессий где мы каждую сессию связавыем айдишником с юзером, и затем она сохраняется в redis, если нету ошибок
-	public saveSession(req: Request, user: User) {
-		return new Promise((resolve, reject) => {
-			req.session.regenerate(err => {
-				if (err) {
-					return reject(
-						new InternalServerErrorException(
-							'Error while regenerating session token'
-						)
-					);
-				}
-				req.session.userId = user.id;
-
-				req.session.save(err => {
-					if (err) {
-						return reject(
-							new InternalServerErrorException(
-								'Error when saving a session, you can check the session parameters'
-							)
-						);
-					}
-
-					resolve({ user });
-				});
-			});
-		});
+		await this.sessionService.destroySession(req, res);
 	}
 }
