@@ -67,13 +67,15 @@ export class AuthController {
 		@Param('provider') provider: string
 	) {
 		if (!code) {
-			throw new BadRequestException('the auth code wasnt provided');
+			throw new BadRequestException(
+				'Код авторизации не был предоставлен'
+			);
 		}
 
 		await this.authService.extractProfile(req, provider, code);
 
 		return res.redirect(
-			`${this.configService.getOrThrow<string>('ALLOWED_ORIGIN')}`
+			`${this.configService.getOrThrow<string>('ALLOWED_ORIGIN')}/dashboard/settings`
 		);
 	}
 

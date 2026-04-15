@@ -1,7 +1,5 @@
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
 import * as argon2 from 'argon2';
 import { type Request, Response } from 'express';
-import { type User } from 'generated/prisma/client';
 import { AuthMethod } from 'generated/prisma/enums';
 
 import { MailConfirmationService } from '@/mail-confirmation/mail-confirmation.service';
@@ -14,7 +12,6 @@ import {
 	BadGatewayException,
 	ConflictException,
 	Injectable,
-	InternalServerErrorException,
 	NotFoundException,
 	UnauthorizedException
 } from '@nestjs/common';

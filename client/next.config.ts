@@ -2,7 +2,8 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   env: {
-    SERVER_URL: process.env.SERVER_URL
+    SERVER_URL: process.env.SERVER_URL,
+    GOOGLE_RECAPTCHA_PUBLIC_KEY: process.env.GOOGLE_RECAPTCHA_PUBLIC_KEY
   },
   images: {
     remotePatterns: [

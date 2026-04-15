@@ -122,6 +122,9 @@ export const apiClientManager = new ApiClient(baseUrl)
 
 apiClientManager.onResponse(response => {
 	if (response.status === 401) {
-		window.location.href = routes.auth.login
+		const isAuthPage = window.location.pathname.startsWith('/auth')
+		if (!isAuthPage) {
+			window.location.href = routes.auth.login
+		}
 	}
 })
