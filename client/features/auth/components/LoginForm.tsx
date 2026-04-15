@@ -9,7 +9,7 @@ import { toast } from 'sonner'
 
 import { Button, FieldGroup, FormField } from '@/shared/components/ui'
 
-import { useLoginMutation } from '../hooks/useLoginMutation'
+import { useLoginMutation } from '../hooks'
 import { LoginFormData, LoginSchema } from '../schemas'
 
 import { AuthWrapper } from './AuthWrapper'

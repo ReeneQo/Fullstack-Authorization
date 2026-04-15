@@ -2,7 +2,7 @@ import { FaGithub, FaGoogle } from 'react-icons/fa'
 
 import { Button } from '@/shared/components/ui'
 
-import { useOauthMutation } from '../hooks/useOauthRegisterMutation'
+import { useOauthMutation } from '../hooks'
 
 export const AuthSocial = () => {
 	const { oauth, isLoadingOauth } = useOauthMutation('GOOGLE_OAUTH')

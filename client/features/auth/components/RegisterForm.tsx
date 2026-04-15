@@ -9,7 +9,7 @@ import { toast } from 'sonner'
 
 import { Button, FieldGroup, FormField } from '@/shared/components/ui'
 
-import { useRegisterMutation } from '../hooks/useRegisterMutation'
+import { useRegisterMutation } from '../hooks'
 import { RegisterFormData, RegisterSchema } from '../schemas'
 
 import { AuthWrapper } from './AuthWrapper'
