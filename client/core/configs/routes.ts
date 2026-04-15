@@ -1,7 +1,15 @@
 class Routes {
 	auth = {
 		login: '/auth/login',
-		register: '/auth/register'
+		register: '/auth/register',
+		logout: '/auth/logout'
+	}
+	dashboard = {
+		settings: '/dashboard/settings'
+	}
+	oauth = {
+		google: 'auth/oauth/connect/google',
+		github: 'auth/oauth/connect/github'
 	}
 }
 
