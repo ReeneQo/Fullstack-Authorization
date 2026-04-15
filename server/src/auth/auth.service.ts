@@ -60,7 +60,7 @@ export class AuthService {
 			newUser.email
 		);
 		// и просто возвращаем нового юзера
-		return this.sessionService.saveSession(req, newUser);
+		return newUser;
 	}
 
 	async login(req: Request, dto: LoginDto) {
@@ -68,7 +68,7 @@ export class AuthService {
 
 		if (!user || !user.password) {
 			throw new NotFoundException(
-				'This users wasnt found, please try again'
+				'Неверный пароль или такого пользователя не существует'
 			);
 		}
 
@@ -79,7 +79,7 @@ export class AuthService {
 
 		if (!isValidPassword) {
 			throw new UnauthorizedException(
-				'Incorrect password, pls try again or reset password'
+				'Неверный пароль или такого пользователя не существует'
 			);
 		}
 

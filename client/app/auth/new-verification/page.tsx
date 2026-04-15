@@ -6,6 +6,6 @@ export const metadata: Metadata = {
 	title: 'Подтверждение почты'
 }
 
-export function NewVerificationPage() {
+export default function NewVerificationPage() {
 	return <NewVerification />
 }

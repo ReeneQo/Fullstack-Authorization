@@ -60,7 +60,7 @@ export const RegisterForm = () => {
 					<FormField
 						control={form.control}
 						name='email'
-						label='Email'
+						label='Почта'
 						type='email'
 						placeholder='example@mail.com'
 						autoComplete='email'

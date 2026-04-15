@@ -9,29 +9,28 @@ import { toast } from 'sonner'
 
 import { Button, FieldGroup, FormField } from '@/shared/components/ui'
 
-import { useLoginMutation } from '../hooks'
-import { LoginFormData, LoginSchema } from '../schemas'
+import { useResetPassowordMutation } from '../hooks'
+import { PasswordResetData, PasswordResetSchema } from '../schemas'
 
 import { AuthWrapper } from './AuthWrapper'
 import { routes } from '@/core/configs/routes'
 
-export const LoginForm = () => {
+export const ResetPassword = () => {
 	const { theme } = useTheme()
 	const [recaptchaValue, setRecaptchaValue] = useState<string | null>(null)
 
-	const form = useForm<LoginFormData>({
-		resolver: zodResolver(LoginSchema),
+	const form = useForm<PasswordResetData>({
+		resolver: zodResolver(PasswordResetSchema),
 		defaultValues: {
-			email: '',
-			password: ''
+			email: ''
 		}
 	})
 
-	const { login, isLoadingLogin } = useLoginMutation()
+	const { reset, isLoadingReset } = useResetPassowordMutation()
 
-	const onSubmit = (values: LoginFormData) => {
+	const onSubmit = (values: PasswordResetData) => {
 		if (recaptchaValue) {
-			login({ values, recaptcha: recaptchaValue })
+			reset({ values, recaptcha: recaptchaValue })
 		} else {
 			toast.error('Пожалуйсте пройдите recaptcha')
 		}
@@ -39,11 +38,10 @@ export const LoginForm = () => {
 
 	return (
 		<AuthWrapper
-			heading='Войти'
-			description='Чтобы войти на сайт введите ваш email и пароль'
+			heading='Сброс пароля'
+			description='Для сброса пароля введите вашу почту'
 			backButtonLabel='Нету аккаунта? Зарегистрируйтесь'
 			backButtonHref={routes.auth.register}
-			isShowSocial
 		>
 			<form onSubmit={form.handleSubmit(onSubmit)}>
 				<FieldGroup>
@@ -52,15 +50,7 @@ export const LoginForm = () => {
 						name='email'
 						label='Почта'
 						type='email'
-						isDisabled={isLoadingLogin}
-					/>
-					<FormField
-						control={form.control}
-						name='password'
-						label='Пароль'
-						type='password'
-						isDisabled={isLoadingLogin}
-						forgetPassword={true}
+						isDisabled={isLoadingReset}
 					/>
 				</FieldGroup>
 				<div className='mt-4 flex justify-center'>
@@ -74,11 +64,11 @@ export const LoginForm = () => {
 				</div>
 				<Button
 					type='submit'
-					disabled={isLoadingLogin}
+					disabled={isLoadingReset}
 					className='mt-4 w-full'
 					variant='outline'
 				>
-					Сбросить
+					Войти
 				</Button>
 			</form>
 		</AuthWrapper>

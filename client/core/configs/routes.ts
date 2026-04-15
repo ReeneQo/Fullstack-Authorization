@@ -3,14 +3,19 @@ class Routes {
 		login: '/auth/login',
 		register: '/auth/register',
 		logout: '/auth/logout',
-		emailConfirm: '/auth/email-confirmation'
+		emailConfirm: '/mail/confirmation/verification'
 	}
 	dashboard = {
 		settings: '/dashboard/settings'
 	}
 	oauth = {
-		google: 'auth/oauth/connect/google',
-		github: 'auth/oauth/connect/github'
+		google: '/auth/oauth/connect/google',
+		github: '/auth/oauth/connect/github'
+	}
+	passwordReset = {
+		request: '/password-reset/request',
+		reset: '/password-reset/reset',
+		page: '/auth/reset-password'
 	}
 }
 

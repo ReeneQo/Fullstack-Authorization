@@ -5,7 +5,7 @@ import { routes } from '@/core/configs/routes'
 class VerificationService {
 	public async newVerification(token: string | null) {
 		const response = await apiClientManager.post(routes.auth.emailConfirm, {
-			body: token
+			body: { token: token }
 		})
 
 		return response

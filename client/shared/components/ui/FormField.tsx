@@ -1,6 +1,7 @@
 // components/ui/form-field.tsx
 'use client'
 
+import Link from 'next/link'
 import {
 	type Control,
 	Controller,
@@ -10,6 +11,7 @@ import {
 
 import { Field, FieldError, FieldLabel } from './Field'
 import { Input } from './Input'
+import { routes } from '@/core/configs/routes'
 
 interface FormFieldProps<T extends FieldValues> {
 	control: Control<T>
@@ -19,6 +21,7 @@ interface FormFieldProps<T extends FieldValues> {
 	type?: string
 	autoComplete?: string
 	isDisabled?: boolean
+	forgetPassword?: boolean
 }
 
 export function FormField<T extends FieldValues>({
@@ -28,7 +31,8 @@ export function FormField<T extends FieldValues>({
 	placeholder,
 	type = 'text',
 	autoComplete,
-	isDisabled
+	isDisabled,
+	forgetPassword
 }: FormFieldProps<T>) {
 	return (
 		<Controller
@@ -36,7 +40,21 @@ export function FormField<T extends FieldValues>({
 			control={control}
 			render={({ field, fieldState }) => (
 				<Field data-invalid={fieldState.invalid}>
-					<FieldLabel htmlFor={field.name}>{label}</FieldLabel>
+					{forgetPassword ? (
+						<div className='flex items-center justify-between'>
+							<FieldLabel htmlFor={field.name}>
+								{label}
+							</FieldLabel>
+							<Link
+								href={routes.passwordReset.page}
+								className='mt-auto inline-block text-sm underline'
+							>
+								Забыли пароль?
+							</Link>
+						</div>
+					) : (
+						<FieldLabel htmlFor={field.name}>{label}</FieldLabel>
+					)}
 					<Input
 						{...field}
 						id={field.name}
