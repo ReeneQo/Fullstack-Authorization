@@ -2,7 +2,7 @@ import {Html} from '@react-email/html'
 import * as React from 'react'
 import {Body, Heading, Link, Tailwind, Text} from '@react-email/components'
 
-interface ConfirmEmailTemplateProps {
+interface ResetPasswordTemplateProps {
 	domain: string;
 	token: string;
 }
@@ -10,8 +10,8 @@ interface ConfirmEmailTemplateProps {
 export const ResetPasswordTemplate = ({
 	domain,
 	token
-}: ConfirmEmailTemplateProps) => {
-	const resetPasswordLink = `${domain}/auth/new-verification?token=${token}`;
+}: ResetPasswordTemplateProps) => {
+	const resetPasswordLink = `${domain}/auth/reset-password/change?token=${token}`;
 
 	return (
 		<Tailwind>
@@ -21,7 +21,7 @@ export const ResetPasswordTemplate = ({
 				<Text>
 						Здравствуйте, что бы сбросить свой пароль, пожалуйста, перейдите по следующей ссылке:
 				</Text>
-				<Link href={resetPasswordLink}>Подтвердить почту</Link>
+				<Link href={resetPasswordLink}>Сбросить пароль</Link>
 				<Text>
 						Эта ссылка действительная в течение 15 минут. Если вы не запрашивали сброс пароля, просто проигнорируйте это сообщение.
 				</Text>

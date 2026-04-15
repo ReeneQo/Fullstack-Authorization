@@ -12,13 +12,13 @@ import {
 import { ConfirmationDto } from './dto/confirmation.dto';
 import { MailConfirmationService } from './mail-confirmation.service';
 
-@Controller('auth/mail-confirmation')
+@Controller('mail/confirmation')
 export class MailConfirmationController {
 	constructor(
 		private readonly mailConfirmationService: MailConfirmationService
 	) {}
 
-	@Post()
+	@Post('verification')
 	@HttpCode(HttpStatus.OK)
 	public async newVerification(
 		@Req() req: Request,
