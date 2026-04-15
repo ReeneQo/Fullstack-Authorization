@@ -1,5 +1,4 @@
 import { useMutation } from '@tanstack/react-query'
-import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 
 import { toastMessageHandler } from '@/shared/utils/toast-message-handler'
@@ -10,8 +9,6 @@ import { authService } from '../services'
 import { routes } from '@/core/configs/routes'
 
 export const useLoginMutation = () => {
-	const router = useRouter()
-
 	const { mutate: login, isPending: isLoadingLogin } = useMutation({
 		mutationKey: ['login user'],
 		mutationFn: ({
@@ -26,7 +23,7 @@ export const useLoginMutation = () => {
 				toast.error(response.data.message)
 			} else {
 				toast.success('Успешная авторизация')
-				router.push(routes.dashboard.settings)
+				window.location.href = routes.dashboard.settings
 			}
 		},
 		onError: error => {

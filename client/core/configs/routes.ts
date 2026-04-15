@@ -2,7 +2,8 @@ class Routes {
 	auth = {
 		login: '/auth/login',
 		register: '/auth/register',
-		logout: '/auth/logout'
+		logout: '/auth/logout',
+		emailConfirm: '/auth/email-confirmation'
 	}
 	dashboard = {
 		settings: '/dashboard/settings'
