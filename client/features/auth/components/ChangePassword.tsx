@@ -2,21 +2,16 @@
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useSearchParams } from 'next/navigation'
-import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 
-import { Button, FieldGroup, FormField, Loading } from '@/shared/components/ui'
+import { Button, FieldGroup, FormField } from '@/shared/components/ui'
 
-import { useVerificationMutation } from '../hooks'
 import { useChangePasswordMutation } from '../hooks/useChangePasswordMutation'
-import {
-	ChangePasswordData,
-	ChangePasswordSchema,
-	LoginFormData
-} from '../schemas'
+import { ChangePasswordData, ChangePasswordSchema } from '../schemas'
 
 import { AuthWrapper } from './AuthWrapper'
+import { routes } from '@/core/configs/routes'
 
 export function ChangePassword() {
 	const searchParams = useSearchParams()
@@ -40,16 +35,21 @@ export function ChangePassword() {
 	}
 
 	return (
-		<AuthWrapper heading='Подтверждение почты'>
+		<AuthWrapper
+			heading='Новый пароль'
+			description='Придумайте новый пароль для аккаунта'
+			backButtonLabel='Войти в аккаунт'
+			backButtonHref={routes.auth.login}
+		>
 			<form onSubmit={form.handleSubmit(onSubmit)}>
 				<FieldGroup>
 					<FormField
 						control={form.control}
+						placeholder='******'
 						name='password'
 						label='Пароль'
 						type='password'
 						isDisabled={isLoadingChange}
-						forgetPassword={true}
 					/>
 				</FieldGroup>
 

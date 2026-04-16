@@ -1,14 +1,12 @@
 import z from 'zod'
 
 export const LoginSchema = z.object({
-	email: z
-		.string()
-		.email('Неккоректный формат почты, пример: example@example.com')
-		.min(1, 'Email обязателен'),
+	email: z.email('Неккоректный формат почты, пример: example@example.com'),
 	password: z
 		.string()
 		.min(1, 'Пароль обязателен')
-		.min(6, 'Минимум 6 символов')
+		.min(6, 'Минимум 6 символов'),
+	code: z.optional(z.string())
 })
 
 export type LoginFormData = z.infer<typeof LoginSchema>

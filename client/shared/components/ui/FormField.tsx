@@ -32,7 +32,7 @@ export function FormField<T extends FieldValues>({
 	type = 'text',
 	autoComplete,
 	isDisabled,
-	forgetPassword
+	forgetPassword = false
 }: FormFieldProps<T>) {
 	return (
 		<Controller

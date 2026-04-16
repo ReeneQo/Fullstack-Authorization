@@ -62,7 +62,7 @@ export const RegisterForm = () => {
 						name='email'
 						label='Почта'
 						type='email'
-						placeholder='example@mail.com'
+						placeholder='example@mail.ru'
 						autoComplete='email'
 						isDisabled={isLoadingRegister}
 					/>

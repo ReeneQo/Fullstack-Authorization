@@ -40,13 +40,14 @@ export const ResetPassword = () => {
 		<AuthWrapper
 			heading='Сброс пароля'
 			description='Для сброса пароля введите вашу почту'
-			backButtonLabel='Нету аккаунта? Зарегистрируйтесь'
-			backButtonHref={routes.auth.register}
+			backButtonLabel='Войти в аккаунт'
+			backButtonHref={routes.auth.login}
 		>
 			<form onSubmit={form.handleSubmit(onSubmit)}>
 				<FieldGroup>
 					<FormField
 						control={form.control}
+						placeholder='example@mail.ru'
 						name='email'
 						label='Почта'
 						type='email'
@@ -68,7 +69,7 @@ export const ResetPassword = () => {
 					className='mt-4 w-full'
 					variant='outline'
 				>
-					Войти
+					Сбросить
 				</Button>
 			</form>
 		</AuthWrapper>

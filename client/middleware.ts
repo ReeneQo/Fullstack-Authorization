@@ -3,25 +3,36 @@ import { NextRequest, NextResponse } from 'next/server'
 import { routes } from './core/configs/routes'
 
 export default function middleware(request: NextRequest) {
-	const { url, cookies } = request
+	const { nextUrl, cookies } = request
 
 	const session = cookies.get('session')?.value
 
-	const isAuthPage = url.includes('/auth')
+	const isChangePasswordPage =
+		nextUrl.pathname === '/auth/reset-password/change'
+	const token = nextUrl.searchParams.get('token')
 
-	if (isAuthPage) {
-		if (session) {
+	if (isChangePasswordPage) {
+		if (!token) {
 			return NextResponse.redirect(
-				new URL(routes.dashboard.settings, url)
+				new URL(routes.passwordReset.page, nextUrl)
 			)
 		}
-
 		return NextResponse.next()
 	}
 
-	if (!session) {
-		return NextResponse.redirect(new URL(routes.auth.login, url))
+	const isAuthPage = nextUrl.pathname.startsWith('/auth')
+
+	if (isAuthPage && session) {
+		return NextResponse.redirect(
+			new URL(routes.dashboard.settings, nextUrl)
+		)
 	}
+
+	if (!isAuthPage && !session) {
+		return NextResponse.redirect(new URL(routes.auth.login, nextUrl))
+	}
+
+	return NextResponse.next()
 }
 
 export const config = {
