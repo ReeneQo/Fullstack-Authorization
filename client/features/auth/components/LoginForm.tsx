@@ -18,23 +18,31 @@ import { routes } from '@/core/configs/routes'
 export const LoginForm = () => {
 	const { theme } = useTheme()
 	const [recaptchaValue, setRecaptchaValue] = useState<string | null>(null)
+	const [show2FA, setShow2FA] = useState<boolean>(false)
 
 	const form = useForm<LoginFormData>({
 		resolver: zodResolver(LoginSchema),
 		defaultValues: {
 			email: '',
-			password: ''
+			password: '',
+			code: ''
 		}
 	})
 
-	const { login, isLoadingLogin } = useLoginMutation()
+	const { login, isLoadingLogin } = useLoginMutation(setShow2FA)
 
 	const onSubmit = (values: LoginFormData) => {
-		if (recaptchaValue) {
-			login({ values, recaptcha: recaptchaValue })
-		} else {
-			toast.error('Пожалуйсте пройдите recaptcha')
+		if (show2FA) {
+			login({ values, recaptcha: recaptchaValue ?? '' })
+			return
 		}
+
+		if (!recaptchaValue) {
+			toast.error('Пожалуйста пройдите recaptcha')
+			return
+		}
+
+		login({ values, recaptcha: recaptchaValue })
 	}
 
 	return (
@@ -47,38 +55,54 @@ export const LoginForm = () => {
 		>
 			<form onSubmit={form.handleSubmit(onSubmit)}>
 				<FieldGroup>
-					<FormField
-						control={form.control}
-						name='email'
-						label='Почта'
-						type='email'
-						isDisabled={isLoadingLogin}
-					/>
-					<FormField
-						control={form.control}
-						name='password'
-						label='Пароль'
-						type='password'
-						isDisabled={isLoadingLogin}
-						forgetPassword={true}
-					/>
+					<div className={show2FA ? 'hidden' : ''}>
+						<FormField
+							control={form.control}
+							name='email'
+							label='Почта'
+							type='email'
+							isDisabled={isLoadingLogin}
+						/>
+						<FormField
+							control={form.control}
+							name='password'
+							label='Пароль'
+							type='password'
+							isDisabled={isLoadingLogin}
+							forgetPassword={true}
+						/>
+					</div>
+
+					{show2FA && (
+						<FormField
+							control={form.control}
+							name='code'
+							label='Код двухфакторной аутентификации'
+							placeholder='123456'
+							isDisabled={isLoadingLogin}
+						/>
+					)}
 				</FieldGroup>
-				<div className='mt-4 flex justify-center'>
-					<ReCAPTCHA
-						sitekey={
-							process.env.GOOGLE_RECAPTCHA_PUBLIC_KEY as string
-						}
-						onChange={setRecaptchaValue}
-						theme={theme === 'light' ? 'light' : 'dark'}
-					/>
-				</div>
+
+				{!show2FA && (
+					<div className='mt-4 flex justify-center'>
+						<ReCAPTCHA
+							sitekey={
+								process.env
+									.GOOGLE_RECAPTCHA_PUBLIC_KEY as string
+							}
+							onChange={setRecaptchaValue}
+							theme={theme === 'light' ? 'light' : 'dark'}
+						/>
+					</div>
+				)}
 				<Button
 					type='submit'
 					disabled={isLoadingLogin}
 					className='mt-4 w-full'
 					variant='outline'
 				>
-					Сбросить
+					Войти
 				</Button>
 			</form>
 		</AuthWrapper>

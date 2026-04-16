@@ -1,4 +1,8 @@
+'use client'
+
 import { useMutation } from '@tanstack/react-query'
+import { useRouter } from 'next/navigation'
+import { Dispatch, SetStateAction } from 'react'
 import { toast } from 'sonner'
 
 import { toastMessageHandler } from '@/shared/utils/toast-message-handler'
@@ -8,7 +12,10 @@ import { authService } from '../services'
 
 import { routes } from '@/core/configs/routes'
 
-export const useLoginMutation = () => {
+export const useLoginMutation = (
+	setShow2FA: Dispatch<SetStateAction<boolean>>
+) => {
+	const router = useRouter()
 	const { mutate: login, isPending: isLoadingLogin } = useMutation({
 		mutationKey: ['login user'],
 		mutationFn: ({
@@ -20,10 +27,11 @@ export const useLoginMutation = () => {
 		}) => authService.login(values, recaptcha),
 		onSuccess: response => {
 			if ('message' in response.data) {
-				toast.error(response.data.message)
+				toast.warning(response.data.message)
+				setShow2FA(true)
 			} else {
 				toast.success('Успешная авторизация')
-				window.location.href = routes.dashboard.settings
+				router.push(routes.dashboard.settings)
 			}
 		},
 		onError: error => {
