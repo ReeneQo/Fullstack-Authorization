@@ -55,7 +55,7 @@ export const LoginForm = () => {
 		>
 			<form onSubmit={form.handleSubmit(onSubmit)}>
 				<FieldGroup>
-					<div className={show2FA ? 'hidden' : ''}>
+					<div className={show2FA ? 'hidden' : 'space-y-2'}>
 						<FormField
 							control={form.control}
 							name='email'
