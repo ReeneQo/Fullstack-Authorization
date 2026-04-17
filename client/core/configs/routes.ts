@@ -17,6 +17,14 @@ class Routes {
 		reset: '/password-reset/reset',
 		page: '/auth/reset-password'
 	}
+	user = {
+		profile: '/user/profile',
+		update: {
+			profile: '/user/update/profile',
+			email: '/user/update/email',
+			password: '/user/update/password'
+		}
+	}
 }
 
 export const routes = new Routes()

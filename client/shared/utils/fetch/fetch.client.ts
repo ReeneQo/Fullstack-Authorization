@@ -79,7 +79,12 @@ class ApiClient {
 			)
 		}
 
-		const data = response.status === 204 ? null : await response.json()
+		const contentType = response.headers.get('content-type')
+		const hasJsonBody =
+			contentType?.includes('application/json') && response.status !== 204
+
+		const data = hasJsonBody ? await response.json() : null
+		
 		return {
 			data: data,
 			httpStatus: response.status

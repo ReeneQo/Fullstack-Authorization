@@ -72,7 +72,7 @@ async function bootstrap() {
 		// 	'https://xg1wjk2c-4000.euw.devtunnels.ms/',
 		// 	'https://xg1wjk2c-4000.euw.devtunnels.ms',
 		// ],
-		methods: ['GET', 'POST'],
+		methods: ['GET', 'POST', 'PATCH'],
 		allowedHeaders: ['Content-Type', 'Authorization', 'recaptcha'],
 		credentials: true,
 		exposedHeaders: ['set-cookie']
