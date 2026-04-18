@@ -32,18 +32,16 @@ export default function RootLayout({
 }>) {
 	return (
 		<html
-			lang='en'
+			lang='ru'
 			className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
 			suppressHydrationWarning
 		>
 			<body className='flex min-h-full flex-col'>
 				<ThemeProvider attribute='class'>
 					<MainProvider>
-						<div className='relative flex min-h-screen flex-col font-mono'>
+						<div className='relative flex min-h-screen justify-center flex-col font-mono'>
 							<ToggleTheme />
-							<div className='flex h-screen w-full items-center justify-center px-4'>
-								{children}
-							</div>
+							{children}
 						</div>
 					</MainProvider>
 				</ThemeProvider>

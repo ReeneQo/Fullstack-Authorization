@@ -33,12 +33,6 @@ class AuthService {
 
 		return response
 	}
-
-	public async logout() {
-		const response = await apiClientManager.post(routes.auth.logout)
-
-		return response
-	}
 }
 
 export const authService = new AuthService()

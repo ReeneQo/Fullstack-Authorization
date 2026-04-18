@@ -1,16 +1,19 @@
 import { createClient } from 'redis';
 
-import { Module } from '@nestjs/common';
+import { Global, Module } from '@nestjs/common';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 
 export const REDIS_CLIENT = 'REDIS_CLIENT';
-// Создаем редис конфиг с редис uri
+
+@Global()
 @Module({
+	imports: [ConfigModule],
 	providers: [
 		{
 			provide: REDIS_CLIENT,
-			useFactory: async () => {
+			useFactory: async (config: ConfigService) => {
 				const client = createClient({
-					url: 'redis://:pass12345@localhost:6379'
+					url: config.getOrThrow<string>('REDIS_URI')
 				});
 
 				client.on('error', err => {
@@ -19,7 +22,8 @@ export const REDIS_CLIENT = 'REDIS_CLIENT';
 
 				await client.connect();
 				return client;
-			}
+			},
+			inject: [ConfigService]
 		}
 	],
 	exports: [REDIS_CLIENT]

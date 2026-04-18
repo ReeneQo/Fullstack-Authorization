@@ -42,7 +42,7 @@ export function SettingsForm() {
 	}
 
 	return (
-		<Card className='w-125'>
+		<Card className='w-full max-w-125'>
 			<CardHeader className='flex flex-row items-center justify-between'>
 				<CardTitle className='text-2xl'>Настройки профиля</CardTitle>
 				{isLoadingUser ? (

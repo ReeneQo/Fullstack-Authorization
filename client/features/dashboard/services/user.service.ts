@@ -23,6 +23,12 @@ class UserService {
 
 		return response
 	}
+
+	public async logout() {
+		const response = await apiClientManager.post(routes.auth.logout)
+
+		return response
+	}
 }
 
 export const userService = new UserService()

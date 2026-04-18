@@ -3,7 +3,9 @@ import { UserRole } from 'generated/prisma/enums';
 
 import { Authorization } from '@/auth/decorators/auth.decorator';
 import { Authorized } from '@/auth/decorators/authorized.decorator';
+import { EmailUpdateService } from '@/email-update/email-update.service';
 import { MailConfirmationService } from '@/mail-confirmation/mail-confirmation.service';
+import { SessionsService } from '@/sessions/sessions.service';
 import {
 	Body,
 	Controller,
@@ -12,10 +14,12 @@ import {
 	HttpStatus,
 	Param,
 	Patch,
+	Post,
 	Req,
 	Res
 } from '@nestjs/common';
 
+import { UpdateUserEmailTokenDto } from './dto/update-user-email-token.dto';
 import { UpdateUserEmailDto } from './dto/update-user-email.dto';
 import { UpdateUserPasswordDto } from './dto/update-user-password.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -25,7 +29,9 @@ import { UserService } from './user.service';
 export class UserController {
 	constructor(
 		private readonly userService: UserService,
-		private readonly mailConfirmationService: MailConfirmationService
+		private readonly mailConfirmationService: MailConfirmationService,
+		private readonly mailUpdateService: EmailUpdateService,
+		private readonly sessionService: SessionsService
 	) {}
 
 	@Authorization(UserRole.REGULAR)
@@ -54,16 +60,28 @@ export class UserController {
 
 	@Authorization(UserRole.REGULAR)
 	@HttpCode(HttpStatus.OK)
-	@Patch('update/email')
-	async updateEmail(
-		@Req() req: Request,
-		@Res({ passthrough: true }) res: Response,
+	@Post('update/email/request')
+	async updateEmailRequest(
 		@Authorized('id') userId: string,
 		@Body() dto: UpdateUserEmailDto
 	) {
-		await this.userService.updateEmail(req, res, userId, dto);
-		await this.mailConfirmationService.sendVerificationToken(dto.email);
-		return { message: 'Проверьте указанный почтовый адрес' };
+		await this.mailUpdateService.sendUpdateEmailToken(userId, dto.email);
+	}
+
+	@Authorization(UserRole.REGULAR)
+	@HttpCode(HttpStatus.OK)
+	@Patch('update/email/confirm-update')
+	async updateEmailValidateToken(
+		@Req() req: Request,
+		@Res({ passthrough: true }) res: Response,
+		@Authorized('id') userId: string,
+		@Body() dto: UpdateUserEmailTokenDto
+	) {
+		await this.mailUpdateService.confirmEmailChange(userId, dto.token);
+
+		await this.sessionService.destroySession(req, res);
+
+		return { success: 'Успешная смена почты!' };
 	}
 
 	@Authorization(UserRole.REGULAR)
