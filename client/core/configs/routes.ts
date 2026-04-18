@@ -6,7 +6,11 @@ class Routes {
 		emailConfirm: '/mail/confirmation/verification'
 	}
 	dashboard = {
-		settings: '/dashboard/settings'
+		settings: '/dashboard/settings',
+		update: {
+			password: '/dashboard/update/password',
+			email: '/dashboard/update/email'
+		}
 	}
 	oauth = {
 		google: '/auth/oauth/connect/google',
@@ -21,7 +25,10 @@ class Routes {
 		profile: '/user/profile',
 		update: {
 			profile: '/user/update/profile',
-			email: '/user/update/email',
+			email: {
+				request: '/user/update/email/request',
+				confirmUpdate: '/user/update/email/confirm-update'
+			},
 			password: '/user/update/password'
 		}
 	}

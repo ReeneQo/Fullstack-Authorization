@@ -1,4 +1,3 @@
-import { MailModule } from '@/libs/mail/mail.module';
 import { MailService } from '@/libs/mail/mail.service';
 import { TokenService } from '@/token-service/token-service.service';
 import { Module } from '@nestjs/common';

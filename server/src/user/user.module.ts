@@ -1,3 +1,4 @@
+import { EmailUpdateModule } from '@/email-update/email-update.module';
 import { MailModule } from '@/libs/mail/mail.module';
 import { MailConfirmationModule } from '@/mail-confirmation/mail-confirmation.module';
 import { SessionsModule } from '@/sessions/sessions.module';
@@ -7,7 +8,12 @@ import { UserController } from './user.controller';
 import { UserService } from './user.service';
 
 @Module({
-	imports: [MailModule, MailConfirmationModule, SessionsModule],
+	imports: [
+		MailModule,
+		MailConfirmationModule,
+		SessionsModule,
+		EmailUpdateModule
+	],
 	controllers: [UserController],
 	providers: [UserService],
 	exports: [UserService]
