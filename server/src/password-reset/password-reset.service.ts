@@ -1,5 +1,4 @@
 import * as argon2 from 'argon2';
-import { TokenType } from 'generated/prisma/enums';
 
 import { MailService } from '@/libs/mail/mail.service';
 import { PrismaService } from '@/prisma/prisma.service';
@@ -10,12 +9,16 @@ import {
 	NotFoundException
 } from '@nestjs/common';
 
+import { TokenType } from '../../generated/prisma/enums';
+
+const PASSWORD_RESET_TOKEN_TTL = 15 * 60 * 1000;
+
 @Injectable()
 export class PasswordResetService {
 	public constructor(
 		private readonly prismaService: PrismaService,
 		private readonly tokenService: TokenService,
-		private readonly mailService: MailService,
+		private readonly mailService: MailService
 	) {}
 
 	public async requestEmail(email: string) {
@@ -26,21 +29,19 @@ export class PasswordResetService {
 		});
 
 		if (!user) {
-			return true;
+			return;
 		}
 
 		const resetPasswordToken = await this.tokenService.generate(
 			email,
 			TokenType.PASSWORD_RESET,
-			15 * 60 * 1000
+			PASSWORD_RESET_TOKEN_TTL
 		);
 
 		await this.mailService.sendResetPasswordEmail(
 			email,
 			resetPasswordToken.token
 		);
-
-		return true;
 	}
 
 	public async resetPassword(token: string, newPassword: string) {

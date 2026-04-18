@@ -6,32 +6,29 @@ import {
 	Validate
 } from 'class-validator';
 
-import { isPasswordMatchingConstraint } from '@/libs/utils/isPasswordMatchingContstraint';
+import { isPasswordMatchingConstraint } from '@/libs/utils/isPasswordMatchingConstraint';
 
-// dtoшка через класс и библиотеку class validator
 export class RegisterDto {
-	// name со свойствами isString - проверяет что бы тип данных был строкой, и свойством notEmpty которая проверяет что поле не пустое
 	@IsString({ message: 'Поле должно быть строкой' })
 	@IsNotEmpty({ message: 'Поле не может быть пустым' })
-	name: string;
+	name!: string;
 
-	// емейл с новым свойством isEmail который является уникальным декоратором для почты
 	@IsString({ message: 'Поле должно быть строкой' })
 	@IsNotEmpty({ message: 'Поле не может быть пустым' })
 	@IsEmail(
 		{},
 		{ message: 'Неверный формат почты пример: example@example.com' }
 	)
-	email: string;
+	email!: string;
 
 	@IsString({ message: 'Поле должно быть строкой' })
 	@IsNotEmpty({ message: 'Поле не может быть пустым' })
 	@MinLength(6, { message: 'Минимум 6 символов' })
-	password: string;
+	password!: string;
 
 	@IsString({ message: 'Поле должно быть строкой' })
 	@IsNotEmpty({ message: 'Поле не может быть пустым' })
 	@MinLength(6, { message: 'Минимум 6 символов' })
 	@Validate(isPasswordMatchingConstraint, { message: 'Пароли не совпадают' })
-	passwordRepeat: string;
+	passwordRepeat!: string;
 }

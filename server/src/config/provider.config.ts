@@ -5,7 +5,6 @@ import { ConfigService } from '@nestjs/config';
 
 export const providerConfig = async (
 	configService: ConfigService
-	// eslint-disable-next-line @typescript-eslint/require-await
 ): Promise<TypeOptions> => {
 	return {
 		baseUrl: configService.getOrThrow<string>('BASE_URL'),

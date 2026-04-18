@@ -1,6 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import { UserRole } from 'generated/prisma/enums';
+import { Request } from 'express';
 
 import { UserService } from '@/user/user.service';
 import {
@@ -10,17 +8,18 @@ import {
 	UnauthorizedException
 } from '@nestjs/common';
 
+import { UserRole } from '../../../generated/prisma/enums';
+
 @Injectable()
 export class IsAdmin implements CanActivate {
 	constructor(private readonly userService: UserService) {}
 	async canActivate(context: ExecutionContext): Promise<boolean> {
-		const request = context.switchToHttp().getRequest();
+		const request = context.switchToHttp().getRequest<Request>();
 
-		if (typeof request.session.userId === 'undefined') {
-			throw new UnauthorizedException('User unauthorized pls login');
+		if (!request.session.userId) {
+			throw new UnauthorizedException('Пользователь не найден');
 		}
 
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
 		const user = await this.userService.findById(request.session.userId);
 
 		if (!user?.role.includes(UserRole.ADMIN)) {

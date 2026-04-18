@@ -1,6 +1,7 @@
 import { RedisStore } from 'connect-redis';
 import cookieParser from 'cookie-parser';
 import session from 'express-session';
+import helmet from 'helmet';
 import { RedisClientType } from 'redis';
 
 import { ValidationPipe } from '@nestjs/common';
@@ -19,6 +20,8 @@ async function bootstrap() {
 
 	const redisClient = app.get<RedisClientType>(REDIS_CLIENT);
 
+	app.use(helmet());
+
 	app.use(cookieParser(config.getOrThrow<string>('COOKIES_SECRET')));
 
 	app.useGlobalPipes(
@@ -31,7 +34,7 @@ async function bootstrap() {
 		session({
 			secret: config.getOrThrow<string>('SESSION_SECRET'),
 			name: config.getOrThrow<string>('SESSION_NAME'),
-			resave: true,
+			resave: false,
 			saveUninitialized: false,
 			cookie: {
 				domain: config.getOrThrow<string>('SESSION_DOMAIN'),
@@ -53,7 +56,7 @@ async function bootstrap() {
 	);
 
 	app.enableCors({
-		origin: true,
+		origin: true, // config.getOrThrow<string>('ALLOWED_ORIGIN'),
 		methods: ['GET', 'POST', 'PATCH'],
 		allowedHeaders: ['Content-Type', 'Authorization', 'recaptcha'],
 		credentials: true,

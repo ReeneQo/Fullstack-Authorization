@@ -1,5 +1,4 @@
 import type { Request, Response } from 'express';
-import { UserRole } from 'generated/prisma/enums';
 
 import { Authorization } from '@/auth/decorators/auth.decorator';
 import { Authorized } from '@/auth/decorators/authorized.decorator';
@@ -18,6 +17,9 @@ import {
 	Req,
 	Res
 } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
+
+import { UserRole } from '../../generated/prisma/enums';
 
 import { UpdateUserEmailTokenDto } from './dto/update-user-email-token.dto';
 import { UpdateUserEmailDto } from './dto/update-user-email.dto';
@@ -29,7 +31,6 @@ import { UserService } from './user.service';
 export class UserController {
 	constructor(
 		private readonly userService: UserService,
-		private readonly mailConfirmationService: MailConfirmationService,
 		private readonly mailUpdateService: EmailUpdateService,
 		private readonly sessionService: SessionsService
 	) {}
@@ -41,13 +42,7 @@ export class UserController {
 		return this.userService.findById(userId);
 	}
 
-	@Authorization(UserRole.REGULAR)
-	@HttpCode(HttpStatus.OK)
-	@Get('by-id/:id')
-	async getUserById(@Param('id') id: string) {
-		return this.userService.findById(id);
-	}
-
+	@Throttle({ default: { limit: 5, ttl: 120_000 } })
 	@Authorization(UserRole.REGULAR)
 	@HttpCode(HttpStatus.OK)
 	@Patch('update/profile')
@@ -58,6 +53,7 @@ export class UserController {
 		return this.userService.updateProfileData(userId, dto);
 	}
 
+	@Throttle({ default: { limit: 10, ttl: 1_800_000 } })
 	@Authorization(UserRole.REGULAR)
 	@HttpCode(HttpStatus.OK)
 	@Post('update/email/request')
@@ -68,6 +64,7 @@ export class UserController {
 		await this.mailUpdateService.sendUpdateEmailToken(userId, dto.email);
 	}
 
+	@Throttle({ default: { limit: 10, ttl: 1_800_000 } })
 	@Authorization(UserRole.REGULAR)
 	@HttpCode(HttpStatus.OK)
 	@Patch('update/email/confirm-update')
@@ -84,6 +81,7 @@ export class UserController {
 		return { success: 'Успешная смена почты!' };
 	}
 
+	@Throttle({ default: { limit: 10, ttl: 1_800_000 } })
 	@Authorization(UserRole.REGULAR)
 	@HttpCode(HttpStatus.OK)
 	@Patch('update/password')
@@ -93,6 +91,10 @@ export class UserController {
 		@Authorized('id') userId: string,
 		@Body() dto: UpdateUserPasswordDto
 	) {
-		return this.userService.updatePassword(req, res, userId, dto);
+		await this.userService.updatePassword(userId, dto);
+
+		await this.sessionService.destroySession(req, res);
+
+		return { success: 'Успешная смена пароля' };
 	}
 }

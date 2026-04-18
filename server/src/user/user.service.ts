@@ -1,27 +1,21 @@
 import * as argon2 from 'argon2';
 import { Request, Response } from 'express';
-import { AuthMethod, User } from 'generated/prisma/client';
 
 import { PrismaService } from '@/prisma/prisma.service';
-import { SessionsService } from '@/sessions/sessions.service';
 import {
 	BadRequestException,
 	Injectable,
 	NotFoundException
 } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 
-import { UpdateUserEmailDto } from './dto/update-user-email.dto';
+import { AuthMethod, User } from '../../generated/prisma/browser';
+
 import { UpdateUserPasswordDto } from './dto/update-user-password.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class UserService {
-	constructor(
-		private readonly prismaService: PrismaService,
-		private readonly configService: ConfigService,
-		private readonly sessionsService: SessionsService
-	) {}
+	constructor(private readonly prismaService: PrismaService) {}
 
 	async findById(id: string): Promise<User | null> {
 		const user = await this.prismaService.user.findUnique({
@@ -51,7 +45,7 @@ export class UserService {
 
 	async createUser(
 		email: string,
-		password: string,
+		password: string | null,
 		displayName: string,
 		picture: string,
 		isActivated: boolean,
@@ -60,7 +54,7 @@ export class UserService {
 		const user = await this.prismaService.user.create({
 			data: {
 				email,
-				password: password ? await argon2.hash(password) : '',
+				password: password ? await argon2.hash(password) : null,
 				displayName,
 				picture,
 				isActivated,
@@ -86,33 +80,17 @@ export class UserService {
 		return updatedUser;
 	}
 
-	public async updateEmail(
-		req: Request,
-		res: Response,
-		userId: string,
-		dto: UpdateUserEmailDto
-	) {
-		await this.prismaService.user.update({
-			where: { id: userId },
-			data: {
-				email: dto.email,
-				isActivated: false
-			}
-		});
-
-		await this.sessionsService.destroySession(req, res);
-	}
-
-	public async updatePassword(
-		req: Request,
-		res: Response,
-		userId: string,
-		dto: UpdateUserPasswordDto
-	) {
+	public async updatePassword(userId: string, dto: UpdateUserPasswordDto) {
 		const user = await this.findById(userId);
 
 		if (!user) {
 			throw new NotFoundException('Пользователь не найден');
+		}
+
+		if (!user.password) {
+			throw new BadRequestException(
+				'У вас авторизация через сервисы, она не предусматривает наличие пароля'
+			);
 		}
 
 		const verifyCurrentPassword = await argon2.verify(
@@ -132,7 +110,5 @@ export class UserService {
 				password: await argon2.hash(dto.password)
 			}
 		});
-
-		await this.sessionsService.destroySession(req, res);
 	}
 }

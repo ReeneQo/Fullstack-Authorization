@@ -29,9 +29,9 @@ import { TwoFactorAuthService } from './two-factor-auth/two-factor-auth.service'
 		}),
 		MailModule,
 		TokenServiceModule,
-		forwardRef(() => UserModule),
+		UserModule,
 		SessionsModule,
-		forwardRef(() => MailConfirmationModule),
+		MailConfirmationModule,
 		TwoFactorAuthModule
 	],
 	controllers: [AuthController],

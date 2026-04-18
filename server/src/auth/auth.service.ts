@@ -1,21 +1,21 @@
 import * as argon2 from 'argon2';
-import { type Request, Response } from 'express';
-import { AuthMethod } from 'generated/prisma/enums';
 
 import { MailConfirmationService } from '@/mail-confirmation/mail-confirmation.service';
 import { PrismaService } from '@/prisma/prisma.service';
 import { ProviderService } from '@/provider/provider.service';
 import { SessionsService } from '@/sessions/sessions.service';
 import { UserService } from '@/user/user.service';
-import { forwardRef, Inject } from '@nestjs/common';
 import {
 	BadGatewayException,
+	BadRequestException,
 	ConflictException,
 	Injectable,
-	NotFoundException,
+	InternalServerErrorException,
 	UnauthorizedException
 } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+
+import { User } from '../../generated/prisma/client';
+import { AuthMethod } from '../../generated/prisma/enums';
 
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
@@ -23,30 +23,24 @@ import { TwoFactorAuthService } from './two-factor-auth/two-factor-auth.service'
 
 @Injectable()
 export class AuthService {
+	private readonly DUMMY_HASH =
+		'$argon2id$v=19$m=65536,t=3,p=4$c29tZXNhbHRkdW1teTEyMzQ1Ng$k8L3qV2pXz7mN9fR4tYhB6wEjK1sD0aC8uH5xP2vM7o';
 	constructor(
-		public readonly prismaService: PrismaService,
-		@Inject(forwardRef(() => UserService))
-		public readonly userService: UserService,
-		private readonly configService: ConfigService,
+		private readonly prismaService: PrismaService,
+		private readonly userService: UserService,
 		private readonly providerService: ProviderService,
-		@Inject(forwardRef(() => MailConfirmationService))
 		private readonly emailConfirmationService: MailConfirmationService,
-		private readonly twoFactorService: TwoFactorAuthService,
-		private readonly sessionService: SessionsService
+		private readonly twoFactorService: TwoFactorAuthService
 	) {}
-	// метод регистрации пользователя
-	async register(req: Request, dto: RegisterDto) {
-		// ищем пользователя в бд
+	async register(dto: RegisterDto) {
 		const isExists = await this.userService.findByEmail(dto.email);
 
-		// Здесь проверяем существует ли такой, и если да, то кидаем 409 ошибку
 		if (isExists) {
 			throw new ConflictException(
 				'Регистрация не удалась. Пользователь с таким email уже существует. Пожалуйста, используйте другой email или войдите в систему'
 			);
 		}
 
-		// Здесь создаем нового пользователя, где берем поля емейл имя и пароль из дтошки, картинка пустая, активирован - нет, метод - регистрация обычная данные с енама
 		const newUser = await this.userService.createUser(
 			dto.email,
 			dto.password,
@@ -59,25 +53,18 @@ export class AuthService {
 		await this.emailConfirmationService.sendVerificationToken(
 			newUser.email
 		);
-		// и просто возвращаем нового юзера
 		return newUser;
 	}
 
-	async login(req: Request, dto: LoginDto) {
+	async login(
+		dto: LoginDto
+	): Promise<{ status: 'success'; user: User } | { status: '2fa_required' }> {
 		const user = await this.userService.findByEmail(dto.email);
 
-		if (!user || !user.password) {
-			throw new NotFoundException(
-				'Неверный пароль или такого пользователя не существует'
-			);
-		}
+		const hashToVerify = user?.password || this.DUMMY_HASH;
+		const isValidPassword = await argon2.verify(hashToVerify, dto.password);
 
-		const isValidPassword = await argon2.verify(
-			user.password,
-			dto.password
-		);
-
-		if (!isValidPassword) {
+		if (!user || !user.password || !isValidPassword) {
 			throw new UnauthorizedException(
 				'Неверный пароль или такого пользователя не существует'
 			);
@@ -96,10 +83,7 @@ export class AuthService {
 			if (!dto.code) {
 				await this.twoFactorService.sendTwoFactorToken(user.email);
 
-				return {
-					message:
-						'Проверьте вашу почту. Требуется код двухфакторной аутентификации.'
-				};
+				return { status: '2fa_required' };
 			}
 
 			await this.twoFactorService.validateTwoFactorToken(
@@ -108,59 +92,75 @@ export class AuthService {
 			);
 		}
 
-		return this.sessionService.saveSession(req, user);
+		return { status: 'success', user: user };
 	}
 
-	public async extractProfile(req: Request, provider: string, code: string) {
+	public async extractProfile(provider: string, code: string) {
 		const providerInstance =
 			this.providerService.findServiceByName(provider);
-		const profile = await providerInstance?.findUserByCode(code);
 
-		if (!profile) {
-			throw new BadGatewayException('DSDS');
+		if (!providerInstance) {
+			throw new BadRequestException(
+				`Провайдер ${providerInstance} не поддерживается`
+			);
 		}
 
-		const account = await this.prismaService.account.findFirst({
+		const profile = await providerInstance.findUserByCode(code);
+
+		if (!profile) {
+			throw new BadGatewayException('Профиль пользователя не найден');
+		}
+
+		const existingAccount = await this.prismaService.account.findFirst({
 			where: {
-				id: profile.id,
+				providerId: String(profile.id),
 				provider: profile.provider
 			}
 		});
 
-		let user = account?.userId
-			? await this.userService.findById(account.userId)
-			: null;
+		if (existingAccount) {
+			const user = await this.userService.findById(
+				existingAccount.userId
+			);
+			if (!user) {
+				throw new InternalServerErrorException(
+					'Пользователь не найден'
+				);
+			}
 
-		if (user) {
-			return this.sessionService.saveSession(req, user);
+			return user;
 		}
 
-		user = await this.userService.createUser(
+		const methodKey = profile.provider.toUpperCase() as keyof AuthMethod;
+		const method = AuthMethod[methodKey];
+
+		if (!method) {
+			throw new BadRequestException(
+				`Неизвестный провайдер: ${profile.provider}`
+			);
+		}
+
+		const user = await this.userService.createUser(
 			profile.email,
-			'',
+			null,
 			profile.name,
 			profile.picture,
 			true,
-			AuthMethod[profile.provider.toLocaleUpperCase()]
+			method
 		);
 
-		if (!account) {
-			await this.prismaService.account.create({
-				data: {
-					userId: user.id,
-					type: 'oauth',
-					provider: profile.provider,
-					accessToken: profile.access_token,
-					refreshToken: profile.refresh_token,
-					expiresAt: `${profile.expires_at}`
-				}
-			});
-		}
+		await this.prismaService.account.create({
+			data: {
+				userId: user.id,
+				type: method,
+				provider: profile.provider,
+				providerId: String(profile.id),
+				accessToken: profile.access_token,
+				refreshToken: profile.refresh_token,
+				expiresAt: String(profile.expires_at)
+			}
+		});
 
-		return this.sessionService.saveSession(req, user);
-	}
-
-	async logout(req: Request, res: Response): Promise<void> {
-		await this.sessionService.destroySession(req, res);
+		return user;
 	}
 }

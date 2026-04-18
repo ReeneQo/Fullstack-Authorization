@@ -7,5 +7,5 @@ export class UpdateUserEmailDto {
 		{},
 		{ message: 'Неверный формат почты пример: example@example.com' }
 	)
-	email: string;
+	email!: string;
 }

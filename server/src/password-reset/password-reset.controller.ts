@@ -1,4 +1,5 @@
 import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
 
 import { RequestPasswordResetDto } from './dto/requestPasswordReset.dto';
 import { ResetPasswordDto } from './dto/resetPassword.dto';
@@ -8,6 +9,7 @@ import { PasswordResetService } from './password-reset.service';
 export class PasswordResetController {
 	constructor(private readonly passwordResetService: PasswordResetService) {}
 
+	@Throttle({ default: { limit: 10, ttl: 1_800_000 } })
 	@Post('request')
 	@HttpCode(HttpStatus.OK)
 	async requestEmail(@Body() dto: RequestPasswordResetDto) {
@@ -15,10 +17,11 @@ export class PasswordResetController {
 		return { message: 'Письмо для смены пароля отправлено' };
 	}
 
+	@Throttle({ default: { limit: 10, ttl: 900_000 } })
 	@Post('reset')
 	@HttpCode(HttpStatus.OK)
 	async resetPassword(@Body() dto: ResetPasswordDto) {
 		await this.passwordResetService.resetPassword(dto.token, dto.password);
 		return { message: 'Пароль обновлен' };
 	}
-} 
+}
