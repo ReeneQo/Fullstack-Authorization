@@ -1,6 +1,5 @@
 import * as crypto from 'crypto';
 import { type Request } from 'express';
-import { AuthMethod } from 'generated/prisma/enums';
 
 import { SessionsService } from '@/sessions/sessions.service';
 import { UserService } from '@/user/user.service';
@@ -12,6 +11,7 @@ import {
 import { ConfigService } from '@nestjs/config';
 
 import { TelegramUserDto } from './dto/telegramUser.dto';
+import { AuthMethod } from '../../generated/prisma/enums'
 
 @Injectable()
 export class TelegramService {

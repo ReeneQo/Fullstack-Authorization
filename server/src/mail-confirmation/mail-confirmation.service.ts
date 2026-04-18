@@ -1,24 +1,17 @@
 import { Request } from 'express';
-import { User } from 'generated/prisma/client';
-import { TokenType } from 'generated/prisma/enums';
-import { v4 } from 'uuid';
 
-import { AuthService } from '@/auth/auth.service';
 import { MailService } from '@/libs/mail/mail.service';
 import { SessionsService } from '@/sessions/sessions.service';
 import { TokenService } from '@/token-service/token-service.service';
-import { UserService } from '@/user/user.service';
 import {
 	BadRequestException,
-	forwardRef,
-	Inject,
 	Injectable,
-	InternalServerErrorException,
 	NotFoundException
 } from '@nestjs/common';
 
 import { PrismaService } from './../prisma/prisma.service';
 import { ConfirmationDto } from './dto/confirmation.dto';
+import { TokenType } from '../../generated/prisma/enums'
 
 @Injectable()
 export class MailConfirmationService {
@@ -91,7 +84,5 @@ export class MailConfirmationService {
 			verificationToken.email,
 			verificationToken.token
 		);
-
-		return true;
 	}
 }

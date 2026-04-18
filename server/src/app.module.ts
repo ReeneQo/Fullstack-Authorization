@@ -1,11 +1,12 @@
-import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { APP_GUARD } from '@nestjs/core';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 
 import { AuthModule } from './auth/auth.module';
 import { TwoFactorAuthModule } from './auth/two-factor-auth/two-factor-auth.module';
 import { EmailUpdateModule } from './email-update/email-update.module';
 import { MailModule } from './libs/mail/mail.module';
-import { UserMiddleware } from './libs/middleware/userLogger.middlewate';
 import { MailConfirmationModule } from './mail-confirmation/mail-confirmation.module';
 import { PasswordResetModule } from './password-reset/password-reset.module';
 import { PrismaModule } from './prisma/prisma.module';
@@ -22,7 +23,6 @@ import { UserModule } from './user/user.module';
 			isGlobal: true,
 			envFilePath: '.env'
 		}),
-		PrismaModule,
 		RedisModule,
 		PrismaModule,
 		AuthModule,
@@ -35,7 +35,19 @@ import { UserModule } from './user/user.module';
 		TokenServiceModule,
 		TwoFactorAuthModule,
 		SessionsModule,
-		EmailUpdateModule
+		EmailUpdateModule,
+		ThrottlerModule.forRoot([
+			{
+				ttl: 30_000,
+				limit: 10
+			}
+		])
+	],
+	providers: [
+		{
+			provide: APP_GUARD,
+			useClass: ThrottlerGuard
+		}
 	]
 })
 export class AppModule {}

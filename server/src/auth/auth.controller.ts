@@ -1,12 +1,7 @@
-/* eslint-disable @typescript-eslint/require-await */
 import type { Request, Response } from 'express';
 
-import { userAgent } from '@/libs/decorator/user-agent.decorator';
-import { UnauthorizedExceptionFilter } from '@/libs/filter/http-exception.filter';
-import { ParseIdIntoNumber } from '@/libs/pipes/parseIdIntoNumber.pipe';
-import { toLowerCasePipe } from '@/libs/pipes/toLowerCase.pipe';
 import { ProviderService } from '@/provider/provider.service';
-import { TelegramUserDto } from '@/telegram/dto/telegramUser.dto';
+import { SessionsService } from '@/sessions/sessions.service';
 import {
 	BadRequestException,
 	Body,
@@ -16,15 +11,13 @@ import {
 	HttpStatus,
 	Param,
 	Query,
-	Redirect,
 	Req,
 	Res,
-	UseFilters,
-	UseGuards,
-	UsePipes
+	UseGuards
 } from '@nestjs/common';
 import { Post } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { Throttle } from '@nestjs/throttler';
 
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
@@ -36,28 +29,40 @@ export class AuthController {
 	constructor(
 		private readonly authService: AuthService,
 		private readonly providerService: ProviderService,
-		private readonly configService: ConfigService
+		private readonly configService: ConfigService,
+		private readonly sessionService: SessionsService
 	) {}
 
+	@Throttle({ default: { limit: 10, ttl: 1_800_000 } })
 	@Post('register')
 	@HttpCode(HttpStatus.CREATED)
-	register(@Req() req: Request, @Body() dto: RegisterDto) {
-		return this.authService.register(req, dto);
+	register(@Body() dto: RegisterDto) {
+		return this.authService.register(dto);
 	}
 
+	@Throttle({ default: { limit: 10, ttl: 60_000 } })
 	@Post('login')
-	// @UseFilters(new UnauthorizedExceptionFilter())
-	@HttpCode(HttpStatus.CREATED)
-	login(@Req() req: Request, @Body() dto: LoginDto) {
-		return this.authService.login(req, dto);
+	@HttpCode(HttpStatus.OK)
+	async login(@Req() req: Request, @Body() dto: LoginDto) {
+		const result = await this.authService.login(dto);
+
+		if (result.status === '2fa_required') {
+			return {
+				message:
+					'Проверьте вашу почту. Требуется код двухфакторной аутентификации.'
+			};
+		}
+
+		return this.sessionService.saveSession(req, result.user);
 	}
 
 	@Post('logout')
-	@HttpCode(HttpStatus.CREATED)
+	@HttpCode(HttpStatus.OK)
 	logout(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
-		return this.authService.logout(req, res);
+		return this.sessionService.destroySession(req, res);
 	}
 
+	@Throttle({ default: { limit: 10, ttl: 60_000 } })
 	@UseGuards(providerGuard)
 	@Get('/oauth/callback/:provider')
 	public async callback(
@@ -72,13 +77,14 @@ export class AuthController {
 			);
 		}
 
-		await this.authService.extractProfile(req, provider, code);
-
+		const user = await this.authService.extractProfile(provider, code);
+		await this.sessionService.saveSession(req, user);
 		return res.redirect(
 			`${this.configService.getOrThrow<string>('ALLOWED_ORIGIN')}/dashboard/settings`
 		);
 	}
 
+	@Throttle({ default: { limit: 10, ttl: 60_000 } })
 	@UseGuards(providerGuard)
 	@Get('/oauth/connect/:provider')
 	public async connect(@Param('provider') provider: string) {
@@ -88,17 +94,5 @@ export class AuthController {
 		return {
 			url: providerInstance?.getAuthUrl()
 		};
-	}
-
-	@Get('oauth/telegram')
-	public telegramCallback(@Req() req: Request, @Res() res: Response) {
-		console.log('🔍 Полный URL:', req.originalUrl);
-		res.redirect('http://26.133.227.23:3000');
-	}
-
-	@HttpCode(HttpStatus.OK)
-	@Post('oauth/telegram/verify')
-	public telegramVerifyData(@Body() body: TelegramUserDto) {
-		return body;
 	}
 }

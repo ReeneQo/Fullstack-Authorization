@@ -1,8 +1,9 @@
-import { TokenType } from 'generated/prisma/enums';
 import { v4 } from 'uuid';
 
 import { PrismaService } from '@/prisma/prisma.service';
 import { Injectable } from '@nestjs/common';
+
+import { TokenType } from '../../generated/prisma/enums';
 
 @Injectable()
 export class TokenService {

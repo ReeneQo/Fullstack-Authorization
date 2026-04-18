@@ -1,5 +1,4 @@
 import { randomInt } from 'crypto';
-import { TokenType } from 'generated/prisma/enums';
 
 import { MailService } from '@/libs/mail/mail.service';
 import { PrismaService } from '@/prisma/prisma.service';
@@ -7,10 +6,12 @@ import { TokenService } from '@/token-service/token-service.service';
 import {
 	BadRequestException,
 	Injectable,
-	NotFoundException,
-	UnauthorizedException
+	NotFoundException
 } from '@nestjs/common';
 
+import { TokenType } from '../../../generated/prisma/enums';
+
+const TWO_FACTOR_TOKEN_TTL = 3600 * 1000;
 @Injectable()
 export class TwoFactorAuthService {
 	public constructor(
@@ -58,11 +59,11 @@ export class TwoFactorAuthService {
 	}
 
 	public async sendTwoFactorToken(email: string) {
-		const code = randomInt(100000, 900000).toString();
+		const code = randomInt(100000, 999999).toString();
 		const twoFactorToken = await this.tokenService.generate(
 			email,
 			TokenType.TWO_FACTOR,
-			3600 * 1000,
+			TWO_FACTOR_TOKEN_TTL,
 			code
 		);
 

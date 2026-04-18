@@ -8,6 +8,7 @@ import {
 	Post,
 	Req
 } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
 
 import { ConfirmationDto } from './dto/confirmation.dto';
 import { MailConfirmationService } from './mail-confirmation.service';
@@ -18,6 +19,7 @@ export class MailConfirmationController {
 		private readonly mailConfirmationService: MailConfirmationService
 	) {}
 
+	@Throttle({ default: { limit: 10, ttl: 1_800_000 } })
 	@Post('verification')
 	@HttpCode(HttpStatus.OK)
 	public async newVerification(

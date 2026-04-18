@@ -19,7 +19,8 @@ export class GoogleProvider extends BaseOauthService {
 		return super.extractUserInfo({
 			email: data.email,
 			name: data.name,
-			picture: data.picture
+			picture: data.picture,
+			id: data.sub
 		});
 	}
 }
