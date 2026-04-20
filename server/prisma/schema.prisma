@@ -16,6 +16,7 @@ model User {
 
   displayName String
   picture String?
+  avatarKey String? @map("avatar_key")
 
   role UserRole @default(REGULAR) 
 
@@ -42,8 +43,6 @@ model Account {
   refreshToken String? @map("refresh_token")
   accessToken String? @map("access_token")
   expiresAt String? @map("expires_at")
-  
-
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -77,7 +76,6 @@ enum UserRole {
 enum AuthMethod {
   CREDENTIALS
   GOOGLE
-  YANDEX
   TELEGRAM
   GITHUB
 }

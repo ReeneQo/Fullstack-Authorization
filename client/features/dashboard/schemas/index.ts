@@ -1,2 +1,4 @@
 export * from './settings.schema'
 export * from './password-update.schema'
+export * from './avatar.schema'
+export * from './email-update.schema'

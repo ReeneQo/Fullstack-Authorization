@@ -57,7 +57,7 @@ export const ResetPassword = () => {
 				<div className='mt-4 flex justify-center'>
 					<ReCAPTCHA
 						sitekey={
-							process.env.GOOGLE_RECAPTCHA_PUBLIC_KEY as string
+							process.env.NEXT_PUBLIC_GOOGLE_RECAPTCHA_PUBLIC_KEY as string
 						}
 						onChange={setRecaptchaValue}
 						theme={theme === 'light' ? 'light' : 'dark'}

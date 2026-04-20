@@ -1,3 +1,4 @@
 export * from './user.service'
 export * from './password-update.service'
 export * from './email-update.service'
+export * from './avatar.service'

@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import { ChangeEventHandler } from 'react'
 import {
 	type Control,
 	Controller,

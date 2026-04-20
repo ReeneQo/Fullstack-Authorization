@@ -89,7 +89,7 @@ export const LoginForm = () => {
 						<ReCAPTCHA
 							sitekey={
 								process.env
-									.GOOGLE_RECAPTCHA_PUBLIC_KEY as string
+									.NEXT_PUBLIC_GOOGLE_RECAPTCHA_PUBLIC_KEY as string
 							}
 							onChange={setRecaptchaValue}
 							theme={theme === 'light' ? 'light' : 'dark'}

@@ -22,6 +22,10 @@ class Routes {
 		page: '/auth/reset-password'
 	}
 	user = {
+		avatar: {
+			upload: 'user/avatar/upload',
+			delete: 'user/avatar/delete'
+		},
 		profile: '/user/profile',
 		update: {
 			profile: '/user/update/profile',

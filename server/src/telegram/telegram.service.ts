@@ -10,8 +10,9 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
+import { AuthMethod } from '../../generated/prisma/enums';
+
 import { TelegramUserDto } from './dto/telegramUser.dto';
-import { AuthMethod } from '../../generated/prisma/enums'
 
 @Injectable()
 export class TelegramService {
@@ -60,9 +61,6 @@ export class TelegramService {
 			.createHmac('sha256', secret)
 			.update(dataToCheck)
 			.digest('hex');
-		console.log(_hash);
-		console.log(userDto.hash);
-		console.log(dataToCheck);
 
 		if (userDto.hash !== _hash) {
 			throw new UnauthorizedException('bad hash bro!');

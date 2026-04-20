@@ -1,7 +1,7 @@
 import * as argon2 from 'argon2';
-import { Request, Response } from 'express';
 
 import { PrismaService } from '@/prisma/prisma.service';
+import { StorageService } from '@/storage/storage.service';
 import {
 	BadRequestException,
 	Injectable,
@@ -15,7 +15,10 @@ import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class UserService {
-	constructor(private readonly prismaService: PrismaService) {}
+	constructor(
+		private readonly prismaService: PrismaService,
+		private readonly storageService: StorageService
+	) {}
 
 	async findById(id: string): Promise<User | null> {
 		const user = await this.prismaService.user.findUnique({
@@ -27,7 +30,34 @@ export class UserService {
 			}
 		});
 
-		return user;
+		if (!user) {
+			throw new NotFoundException('Пользователь не найден');
+		}
+
+		const avatarUrl = await this.resolveAvatarUrl(
+			user?.picture,
+			user?.avatarKey
+		);
+
+		return {
+			...user,
+			avatarKey: avatarUrl
+		};
+	}
+
+	private async resolveAvatarUrl(
+		picture: string | null,
+		avatarKey: string | null
+	): Promise<string | null> {
+		if (avatarKey) {
+			return this.storageService.getPresignedUrl(avatarKey);
+		}
+
+		if (picture) {
+			return picture;
+		}
+
+		return null;
 	}
 
 	async findByEmail(email: string): Promise<User | null> {
