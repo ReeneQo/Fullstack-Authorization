@@ -6,7 +6,8 @@ export enum UserRole {
 export enum EnumAuthMethod {
 	Credentials = 'CREDENTIALS',
 	Google = 'GOOGLE',
-	Yandex = 'YANDEX'
+	GITHUB = 'GITHUB',
+	TELEGRAM = 'TELEGRAM'
 }
 
 export interface IAccount {
@@ -15,9 +16,10 @@ export interface IAccount {
 	updatedAt: string
 	type: string
 	provider: string
-	refreshToken: string
-	accessToken: string
-	expiresAt: number
+	providerId: string
+	refreshToken: string | null
+	accessToken: string | null
+	expiresAt: number | null
 	userId: string
 }
 
@@ -26,9 +28,10 @@ export interface IUser {
 	createdAt: string
 	updatedAt: string
 	email: string
-	password: string
+	password: string | null
+	avatarKey: string | null
 	displayName: string
-	picture: string
+	picture: string | null
 	role: UserRole
 	isVerified: boolean
 	isTwoFactorEnabled: boolean

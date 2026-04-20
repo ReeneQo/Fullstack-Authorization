@@ -120,16 +120,16 @@ class ApiClient {
 	}
 }
 
-const baseUrl = process.env.SERVER_URL
+const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL
 if (!baseUrl) throw new Error('SERVER_URL не найден')
 
 export const apiClientManager = new ApiClient(baseUrl)
 
-apiClientManager.onResponse(response => {
-	if (response.status === 401) {
-		const isAuthPage = window.location.pathname.startsWith('/auth')
-		if (!isAuthPage) {
-			window.location.href = routes.auth.login
-		}
-	}
-})
+// apiClientManager.onResponse(response => {
+// 	if (response.status === 401) {
+// 		const isAuthPage = window.location.pathname.startsWith('/auth')
+// 		if (!isAuthPage) {
+// 			window.location.href = routes.auth.login
+// 		}
+// 	}
+// })

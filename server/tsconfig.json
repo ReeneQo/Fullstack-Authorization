@@ -22,9 +22,12 @@
 		"skipLibCheck": true,
 		"strictNullChecks": true,
 		"forceConsistentCasingInFileNames": true,
-		"noImplicitAny": false,
 		"strictBindCallApply": false,
 		"noFallthroughCasesInSwitch": false,
-		"jsx": "react"
+		"strict": true,
+		"useUnknownInCatchVariables": true,
+		"noImplicitAny": true,
+		"jsx": "react",
+		"types": ["node", "jest", "multer"]
 	}
 }

@@ -1,5 +1,5 @@
 import { MailerService } from '@nestjs-modules/mailer';
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { render } from '@react-email/render';
 
@@ -41,11 +41,17 @@ export class MailService {
 		return this.sendEmail(email, 'Обновление почты', html);
 	}
 
-	private sendEmail(email: string, subject: string, html: string) {
-		return this.mailerService.sendMail({
-			to: email,
-			subject,
-			html
-		});
+	private async sendEmail(email: string, subject: string, html: string) {
+		try {
+			await this.mailerService.sendMail({
+				to: email,
+				subject,
+				html
+			});
+		} catch (error) {
+			if (error) {
+				throw new BadRequestException('Указанная почта не существует, либо недоступна')
+			}
+		}
 	}
 }

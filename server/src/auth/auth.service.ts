@@ -3,7 +3,6 @@ import * as argon2 from 'argon2';
 import { MailConfirmationService } from '@/mail-confirmation/mail-confirmation.service';
 import { PrismaService } from '@/prisma/prisma.service';
 import { ProviderService } from '@/provider/provider.service';
-import { SessionsService } from '@/sessions/sessions.service';
 import { UserService } from '@/user/user.service';
 import {
 	BadGatewayException,
@@ -53,6 +52,7 @@ export class AuthService {
 		await this.emailConfirmationService.sendVerificationToken(
 			newUser.email
 		);
+
 		return newUser;
 	}
 
@@ -131,7 +131,8 @@ export class AuthService {
 			return user;
 		}
 
-		const methodKey = profile.provider.toUpperCase() as keyof AuthMethod;
+		const methodKey =
+			profile.provider.toUpperCase() as keyof typeof AuthMethod;
 		const method = AuthMethod[methodKey];
 
 		if (!method) {

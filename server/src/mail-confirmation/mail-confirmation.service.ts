@@ -9,9 +9,10 @@ import {
 	NotFoundException
 } from '@nestjs/common';
 
+import { TokenType } from '../../generated/prisma/enums';
+
 import { PrismaService } from './../prisma/prisma.service';
 import { ConfirmationDto } from './dto/confirmation.dto';
-import { TokenType } from '../../generated/prisma/enums'
 
 @Injectable()
 export class MailConfirmationService {

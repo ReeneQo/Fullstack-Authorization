@@ -5,7 +5,6 @@ import {
 	CanActivate,
 	ExecutionContext,
 	Injectable,
-	NotFoundException,
 	UnauthorizedException
 } from '@nestjs/common';
 
