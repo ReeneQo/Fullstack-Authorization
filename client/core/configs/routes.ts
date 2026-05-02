@@ -14,7 +14,8 @@ class Routes {
 	}
 	oauth = {
 		google: '/auth/oauth/connect/google',
-		github: '/auth/oauth/connect/github'
+		github: '/auth/oauth/connect/github',
+		password: '/auth/oauth/add/password'
 	}
 	passwordReset = {
 		request: '/password-reset/request',

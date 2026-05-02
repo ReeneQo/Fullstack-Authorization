@@ -35,12 +35,14 @@ export function AvatarUploadDialog({
 		}
 	})
 
-	const { avatarUpload, isLoadingAvatarUpload } = useAvatarUploadMutation()
+	const { avatarUpload, isLoadingAvatarUpload } = useAvatarUploadMutation(
+		setIsOpen,
+		form
+	)
 
 	const onSubmit = (values: AvatarSchemaData) => {
-		console.log(values)
 		avatarUpload(values)
-}
+	}
 
 	return (
 		<Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -89,7 +91,7 @@ export function AvatarUploadDialog({
 					</FieldGroup>
 					<Button
 						type='submit'
-						// disabled={isLoadingUpdate || isLoadingUser}
+						disabled={isLoadingAvatarUpload}
 						className='mt-4 w-full'
 						variant='outline'
 					>

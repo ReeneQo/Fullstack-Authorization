@@ -13,9 +13,9 @@ import {
 	UnauthorizedException
 } from '@nestjs/common';
 
-import { User } from '../../generated/prisma/client';
-import { AuthMethod } from '../../generated/prisma/enums';
+import { Prisma, User } from '../../generated/prisma/client';
 
+import { AddPasswordOauthDto } from './dto/addPasswordOauth.dto';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 import { TwoFactorAuthService } from './two-factor-auth/two-factor-auth.service';
@@ -45,8 +45,7 @@ export class AuthService {
 			dto.password,
 			dto.name,
 			'',
-			false,
-			AuthMethod.CREDENTIALS
+			false
 		);
 
 		await this.emailConfirmationService.sendVerificationToken(
@@ -131,29 +130,18 @@ export class AuthService {
 			return user;
 		}
 
-		const methodKey =
-			profile.provider.toUpperCase() as keyof typeof AuthMethod;
-		const method = AuthMethod[methodKey];
-
-		if (!method) {
-			throw new BadRequestException(
-				`Неизвестный провайдер: ${profile.provider}`
-			);
-		}
-
 		const user = await this.userService.createUser(
 			profile.email,
 			null,
 			profile.name,
 			profile.picture,
-			true,
-			method
+			true
 		);
 
 		await this.prismaService.account.create({
 			data: {
 				userId: user.id,
-				type: method,
+				type: profile.provider.toUpperCase(),
 				provider: profile.provider,
 				providerId: String(profile.id),
 				accessToken: profile.access_token,
@@ -163,5 +151,26 @@ export class AuthService {
 		});
 
 		return user;
+	}
+
+	public async addPasswordOauth(userId: string, dto: AddPasswordOauthDto) {
+		const hash = await argon2.hash(dto.password);
+
+		try {
+			await this.prismaService.user.update({
+				where: { id: userId, password: null },
+				data: {
+					password: hash
+				}
+			});
+		} catch (error) {
+			if (
+				error instanceof Prisma.PrismaClientKnownRequestError &&
+				error.code === 'P2025'
+			) {
+				throw new BadRequestException('Пароль уже установлен');
+			}
+			throw error;
+		}
 	}
 }

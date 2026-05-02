@@ -6,13 +6,10 @@ import { PrismaService } from '@/prisma/prisma.service';
 import { REDIS_CLIENT } from '@/redis/redis.module';
 import {
 	BadRequestException,
-	ForbiddenException,
 	Inject,
 	Injectable,
 	NotFoundException
 } from '@nestjs/common';
-
-import { AuthMethod } from '../../generated/prisma/enums';
 
 @Injectable()
 export class EmailUpdateService {
@@ -26,16 +23,6 @@ export class EmailUpdateService {
 	) {}
 
 	public async confirmEmailChange(userId: string, code: string) {
-		const user = await this.prismaService.user.findUnique({
-			where: { id: userId }
-		});
-
-		if (user?.method !== AuthMethod.CREDENTIALS) {
-			throw new ForbiddenException(
-				'Вы авторизованы через Oauth сервисы, они не подразумевают смену почты, если вы хотите поменять почту, создай на нее новый аккаунт, либо поменяйте почту в аккаунте своего сервиса'
-			);
-		}
-
 		const raw = await this.redis.get(`${this.REDIS_KEY_PREFIX}:${userId}`);
 		if (!raw) throw new NotFoundException('Код не найден');
 

@@ -1,6 +1,8 @@
 'use client'
 
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { Dispatch, SetStateAction } from 'react'
+import { UseFormReturn } from 'react-hook-form'
 import { toast } from 'sonner'
 
 import { toastMessageHandler } from '@/shared/utils/toast-message-handler'
@@ -8,7 +10,18 @@ import { toastMessageHandler } from '@/shared/utils/toast-message-handler'
 import { AvatarSchemaData } from '../schemas'
 import { avatarService } from '../services'
 
-export const useAvatarUploadMutation = () => {
+export const useAvatarUploadMutation = (
+	setIsOpenModal: Dispatch<SetStateAction<boolean>>,
+	form: UseFormReturn<
+		{
+			avatar: File
+		},
+		unknown,
+		{
+			avatar: File
+		}
+	>
+) => {
 	const queryClient = useQueryClient()
 	const { mutate: avatarUpload, isPending: isLoadingAvatarUpload } =
 		useMutation({
@@ -21,6 +34,8 @@ export const useAvatarUploadMutation = () => {
 			onSuccess: () => {
 				toast.success('Аватар успешно изменен')
 				queryClient.invalidateQueries({ queryKey: ['get profile'] })
+				setIsOpenModal(false)
+				form.reset()
 			},
 			onError: error => {
 				toastMessageHandler(error)

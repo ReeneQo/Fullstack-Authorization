@@ -23,8 +23,6 @@ model User {
   isActivated Boolean @default(false) @map("is_activated")
   isTwoFactorEnabled Boolean @default(false) @map("is_two_factor_enabled")
 
-  method AuthMethod
-
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
@@ -51,7 +49,7 @@ model Account {
   userId String @map("user_id")
 
   @@map("account")
-
+  @@unique([provider, providerId])
 }
 
 model Token {
@@ -71,13 +69,6 @@ model Token {
 enum UserRole {
   REGULAR
   ADMIN
-}
-
-enum AuthMethod {
-  CREDENTIALS
-  GOOGLE
-  TELEGRAM
-  GITHUB
 }
 
 enum TokenType {
