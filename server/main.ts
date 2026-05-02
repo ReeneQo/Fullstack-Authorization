@@ -4,14 +4,15 @@ import session from 'express-session';
 import helmet from 'helmet';
 import { RedisClientType } from 'redis';
 
+import { isDev } from '@/libs/utils/isDev.util';
 import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 
-import { AppModule } from './app.module';
-import { parseMs } from './libs/utils/ms.util';
-import { parseBoolean } from './libs/utils/parse-boolean';
-import { REDIS_CLIENT } from './redis/redis.module';
+import { AppModule } from './src/app.module';
+import { parseMs } from './src/libs/utils/ms.util';
+import { parseBoolean } from './src/libs/utils/parse-boolean';
+import { REDIS_CLIENT } from './src/redis/redis.module';
 
 async function bootstrap() {
 	const app = await NestFactory.create(AppModule);
@@ -56,8 +57,8 @@ async function bootstrap() {
 	);
 
 	app.enableCors({
-		origin: true, // config.getOrThrow<string>('ALLOWED_ORIGIN'),
-		methods: ['GET', 'POST', 'PATCH'],
+		origin: isDev ? true : config.getOrThrow<string>('ALLOWED_ORIGIN'),
+		methods: ['GET', 'POST', 'PATCH', 'DELETE'],
 		allowedHeaders: ['Content-Type', 'Authorization', 'recaptcha'],
 		credentials: true,
 		exposedHeaders: ['set-cookie']

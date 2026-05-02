@@ -40,7 +40,8 @@ export class AvatarController {
 	}
 
 	@Delete('delete')
-	@HttpCode(HttpStatus.OK)
+	@UseGuards(AuthGuard)
+	@HttpCode(HttpStatus.NO_CONTENT)
 	async deleteAvatar(@Authorized('id') userId: string) {
 		return this.avatarService.deleteAvatar(userId);
 	}

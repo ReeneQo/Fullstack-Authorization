@@ -20,6 +20,9 @@ import { ConfigService } from '@nestjs/config';
 import { Throttle } from '@nestjs/throttler';
 
 import { AuthService } from './auth.service';
+import { Authorization } from './decorators/auth.decorator';
+import { Authorized } from './decorators/authorized.decorator';
+import { AddPasswordOauthDto } from './dto/addPasswordOauth.dto';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 import { providerGuard } from './guards/provider.guard';
@@ -94,5 +97,19 @@ export class AuthController {
 		return {
 			url: providerInstance?.getAuthUrl()
 		};
+	}
+
+	@Throttle({ default: { limit: 3, ttl: 60_000 } })
+	@Authorization()
+	@Post('/oauth/add/password')
+	@HttpCode(HttpStatus.NO_CONTENT)
+	public async addPasswordOauth(
+		@Req() req: Request,
+		@Res({ passthrough: true }) res: Response,
+		@Authorized('id') userId: string,
+		@Body() dto: AddPasswordOauthDto
+	) {
+		await this.authService.addPasswordOauth(userId, dto);
+		await this.sessionService.destroySession(req, res);
 	}
 }

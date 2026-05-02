@@ -8,7 +8,7 @@ import {
 	NotFoundException
 } from '@nestjs/common';
 
-import { AuthMethod, User } from '../../generated/prisma/browser';
+import { User } from '../../generated/prisma/browser';
 
 import { UpdateUserPasswordDto } from './dto/update-user-password.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -78,8 +78,7 @@ export class UserService {
 		password: string | null,
 		displayName: string,
 		picture: string,
-		isActivated: boolean,
-		method: AuthMethod
+		isActivated: boolean
 	) {
 		const user = await this.prismaService.user.create({
 			data: {
@@ -87,8 +86,7 @@ export class UserService {
 				password: password ? await argon2.hash(password) : null,
 				displayName,
 				picture,
-				isActivated,
-				method
+				isActivated
 			},
 			include: {
 				account: true

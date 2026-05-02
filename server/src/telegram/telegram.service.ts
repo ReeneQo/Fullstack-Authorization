@@ -10,8 +10,6 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
-import { AuthMethod } from '../../generated/prisma/enums';
-
 import { TelegramUserDto } from './dto/telegramUser.dto';
 
 @Injectable()
@@ -80,8 +78,7 @@ export class TelegramService {
 			'',
 			dto.first_name,
 			dto.photo_url ?? '',
-			true,
-			AuthMethod.TELEGRAM
+			true
 		);
 		return this.sessionsService.saveSession(req, newUser);
 	}

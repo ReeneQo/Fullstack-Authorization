@@ -5,7 +5,6 @@ import {
 	RequestOptions,
 	ResponseInterceptor
 } from './fetch.types'
-import { routes } from '@/core/configs/routes'
 
 class ApiClient {
 	private baseUrl

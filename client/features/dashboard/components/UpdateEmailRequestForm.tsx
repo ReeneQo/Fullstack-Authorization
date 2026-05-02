@@ -1,3 +1,5 @@
+'use client'
+
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Dispatch, SetStateAction } from 'react'
 import { useForm } from 'react-hook-form'
@@ -10,7 +12,9 @@ import {
 	EmailUpdateRequestSchema
 } from '../schemas/email-update.schema'
 
-export const UpdateEmailRequestForm = ({setStep}: {
+export const UpdateEmailRequestForm = ({
+	setStep
+}: {
 	setStep: Dispatch<SetStateAction<'email' | 'code'>>
 }) => {
 	const form = useForm<EmailUpdateRequestData>({
