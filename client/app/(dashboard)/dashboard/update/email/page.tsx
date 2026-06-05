@@ -1,11 +1,11 @@
 import { Metadata } from 'next'
 
-import { UpdateEmailForm } from '@/features/dashboard/components'
+import { UpdateEmailRequestCallbackForm } from '@/features/dashboard/components/UpdateEmailRequestCallbackForm'
 
 export const metadata: Metadata = {
 	title: 'Смена email'
 }
 
 export default function Home() {
-	return <UpdateEmailForm />
+	return <UpdateEmailRequestCallbackForm />
 }

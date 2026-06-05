@@ -6,7 +6,7 @@ class VerificationService {
 	public async newVerification(token: string | null) {
 		const response = await apiClientManager.post(routes.auth.emailConfirm, {
 			body: { token: token }
-		})
+		})  
 
 		return response
 	}

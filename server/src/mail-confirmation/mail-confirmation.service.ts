@@ -14,6 +14,7 @@ import { TokenType } from '../../generated/prisma/enums';
 import { PrismaService } from './../prisma/prisma.service';
 import { ConfirmationDto } from './dto/confirmation.dto';
 
+const ONE_HOUR_IN_MS = 3600 * 1000;
 @Injectable()
 export class MailConfirmationService {
 	public constructor(
@@ -23,7 +24,10 @@ export class MailConfirmationService {
 		private readonly sessionsService: SessionsService
 	) {}
 
-	public async newVerificationToken(req: Request, dto: ConfirmationDto) {
+	public async newVerificationToken(
+		req: Request,
+		dto: ConfirmationDto
+	): Promise<unknown> {
 		const existingToken = await this.prismaService.token.findUnique({
 			where: {
 				token: dto.token,
@@ -74,11 +78,11 @@ export class MailConfirmationService {
 		return this.sessionsService.saveSession(req, existingUser);
 	}
 
-	public async sendVerificationToken(email: string) {
+	public async sendVerificationToken(email: string): Promise<void> {
 		const verificationToken = await this.tokenService.generate(
 			email,
 			TokenType.VERIFICATION,
-			3600 * 1000
+			ONE_HOUR_IN_MS
 		);
 
 		await this.mailService.sendConfirmationEmail(

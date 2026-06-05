@@ -29,6 +29,13 @@ class EmailUpdateService {
 
 		return response
 	}
+
+	public async requestUpdateCallback() {
+		const response = await apiClientManager.post(
+			routes.user.update.email.callback
+		)
+		return response
+	}
 }
 
 export const emailUpdateService = new EmailUpdateService()

@@ -4,14 +4,12 @@ import { routes } from './core/configs/routes'
 
 export default function middleware(request: NextRequest) {
 	const { nextUrl, cookies } = request
-
 	const session = cookies.get('session')?.value
 
 	const isChangePasswordPage =
 		nextUrl.pathname === '/auth/reset-password/change'
-	const token = nextUrl.searchParams.get('token')
-
 	if (isChangePasswordPage) {
+		const token = nextUrl.searchParams.get('token')
 		if (!token) {
 			return NextResponse.redirect(
 				new URL(routes.passwordReset.page, nextUrl)
@@ -20,14 +18,28 @@ export default function middleware(request: NextRequest) {
 		return NextResponse.next()
 	}
 
-	const isAuthPage = nextUrl.pathname.startsWith('/auth')
+	const isConfirmEmailPage =
+		nextUrl.pathname === '/dashboard/update/email/confirm'
 
+	if (isConfirmEmailPage) {
+		if (!session) {
+			return NextResponse.redirect(new URL(routes.auth.login, nextUrl))
+		}
+		const tokenCallback = nextUrl.searchParams.get('token')
+		if (!tokenCallback) {
+			return NextResponse.redirect(
+				new URL(routes.dashboard.update.email, nextUrl)
+			)
+		}
+		return NextResponse.next()
+	}
+
+	const isAuthPage = nextUrl.pathname.startsWith('/auth')
 	if (isAuthPage && session) {
 		return NextResponse.redirect(
 			new URL(routes.dashboard.settings, nextUrl)
 		)
 	}
-
 	if (!isAuthPage && !session) {
 		return NextResponse.redirect(new URL(routes.auth.login, nextUrl))
 	}

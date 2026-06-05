@@ -3,7 +3,6 @@ import type { Request, Response } from 'express';
 import { Authorization } from '@/auth/decorators/auth.decorator';
 import { Authorized } from '@/auth/decorators/authorized.decorator';
 import { EmailUpdateService } from '@/email-update/email-update.service';
-import { MailConfirmationService } from '@/mail-confirmation/mail-confirmation.service';
 import { SessionsService } from '@/sessions/sessions.service';
 import {
 	Body,
@@ -56,15 +55,23 @@ export class UserController {
 	@Throttle({ default: { limit: 10, ttl: 1_800_000 } })
 	@Authorization(UserRole.REGULAR)
 	@HttpCode(HttpStatus.OK)
+	@Post('update/email/request/callback')
+	async updateEmailRequestCallback(@Authorized('id') userId: string) {
+		await this.mailUpdateService.sendChangeEmailCallback(userId);
+	}
+
+	@Throttle({ default: { limit: 10, ttl: 1_800_000 } })
+	@Authorization(UserRole.REGULAR)
+	@HttpCode(HttpStatus.OK)
 	@Post('update/email/request')
 	async updateEmailRequest(
 		@Authorized('id') userId: string,
 		@Body() dto: UpdateUserEmailDto
 	) {
-		await this.mailUpdateService.sendUpdateEmailToken(userId, dto.email);
+		await this.mailUpdateService.requestChangeEmailToken(userId, dto);
 	}
 
-	@Throttle({ default: { limit: 10, ttl: 1_800_000 } })
+	@Throttle({ default: { limit: 5, ttl: 1_800_000 } })
 	@Authorization(UserRole.REGULAR)
 	@HttpCode(HttpStatus.OK)
 	@Patch('update/email/confirm-update')
@@ -74,8 +81,7 @@ export class UserController {
 		@Authorized('id') userId: string,
 		@Body() dto: UpdateUserEmailTokenDto
 	) {
-		await this.mailUpdateService.confirmEmailChange(userId, dto.token);
-
+		await this.mailUpdateService.confirmEmailChange(userId, dto);
 		await this.sessionService.destroySession(req, res);
 
 		return { success: 'Успешная смена почты!' };

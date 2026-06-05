@@ -32,7 +32,9 @@ class Routes {
 			profile: '/user/update/profile',
 			email: {
 				request: '/user/update/email/request',
-				confirmUpdate: '/user/update/email/confirm-update'
+				confirmUpdate: '/user/update/email/confirm-update',
+				cancel: '/user/update/email/cancel',
+				callback: '/user/update/email/request/callback'
 			},
 			password: '/user/update/password'
 		}

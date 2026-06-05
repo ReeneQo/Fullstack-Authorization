@@ -1,15 +1,19 @@
 import { MailerService } from '@nestjs-modules/mailer';
-import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { render } from '@react-email/render';
 
+import { ChangeEmailNotificationTemplate } from './templates/changeEmailNotification.template';
 import { ConfirmEmailTemplate } from './templates/confirm.template';
 import { ResetPasswordTemplate } from './templates/resetPassword.template';
 import { TwoFactorAuthTemplate } from './templates/two-factor-auth.template';
 import { UpdateEmailTemplate } from './templates/updateEmail.template';
+import { UpdateEmailCallbackTemplate } from './templates/updateEmailCallback.template';
 
 @Injectable()
 export class MailService {
+	private readonly logger = new Logger(MailService.name);
+
 	public constructor(
 		private readonly mailerService: MailerService,
 		private readonly configService: ConfigService
@@ -41,6 +45,24 @@ export class MailService {
 		return this.sendEmail(email, 'Обновление почты', html);
 	}
 
+	public async sendUpdateEmailCallback(email: string, token: string) {
+		const domain = this.configService.getOrThrow<string>('ALLOWED_ORIGIN');
+
+		const html = await render(
+			UpdateEmailCallbackTemplate({ domain, token })
+		);
+
+		return this.sendEmail(email, 'Изменение почты', html);
+	}
+
+	public async sendChangeEmailNotification(email: string, newEmail: string) {
+		const html = await render(
+			ChangeEmailNotificationTemplate({ email: newEmail })
+		);
+
+		return this.sendEmail(email, 'Обновление почты', html);
+	}
+
 	private async sendEmail(email: string, subject: string, html: string) {
 		try {
 			await this.mailerService.sendMail({
@@ -49,9 +71,14 @@ export class MailService {
 				html
 			});
 		} catch (error) {
-			if (error) {
-				throw new BadRequestException('Указанная почта не существует, либо недоступна')
-			}
+			this.logger.error('Ошибка отправки письма', {
+				to: email,
+				subject,
+				error
+			});
+			throw new BadRequestException(
+				'Указанная почта не существует, либо недоступна'
+			);
 		}
 	}
 }

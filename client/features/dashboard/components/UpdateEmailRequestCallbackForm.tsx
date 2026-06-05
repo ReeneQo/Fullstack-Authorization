@@ -1,6 +1,4 @@
 'use client'
-import { useSearchParams } from 'next/navigation'
-import { useState } from 'react'
 
 import {
 	Card,
@@ -11,21 +9,15 @@ import {
 } from '@/shared/components/ui'
 import { useProfile } from '@/shared/hooks/useProfile'
 
-import { UpdateEmailRequestForm } from './UpdateEmailRequestForm'
+import { UpdateEmailRequestCallback } from './UpdateEmailRequestCallback'
 import { UserButton, UserButtonLoading } from './UserButton'
-import { UpdateEmailConfirmForm } from './UpdateEmailConfirmForm'
 
-export function UpdateEmailForm() {
+export function UpdateEmailRequestCallbackForm() {
 	const { user, isLoadingUser } = useProfile()
-	const [step, setStep] = useState<'email' | 'code'>('email')
-	const searchParams = useSearchParams()
-	const tokenCallback = searchParams.get('token')
 
 	if (!user) {
 		return null
 	}
-
-	if (!tokenCallback) return null
 
 	return (
 		<Card className='w-full max-w-125'>
@@ -45,14 +37,8 @@ export function UpdateEmailForm() {
 						Настоящая почта: {user.data.email}
 					</div>
 				)}
-				{step === 'email' ? (
-					<UpdateEmailRequestForm
-						setStep={setStep}
-						tokenCallback={tokenCallback}
-					/>
-				) : (
-					<UpdateEmailConfirmForm tokenCallback={tokenCallback} />
-				)}
+
+				<UpdateEmailRequestCallback />
 			</CardContent>
 		</Card>
 	)
