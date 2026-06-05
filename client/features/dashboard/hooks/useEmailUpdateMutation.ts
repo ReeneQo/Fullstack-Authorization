@@ -62,3 +62,23 @@ export const useEmailUpdateConfirmMutation = () => {
 
 	return { emailUpdateConfirm, isLoadingUpdateEmailConfirm }
 }
+
+export const useEmailUpdateRequestCallbackMutation = () => {
+	const {
+		mutate: emailUpdateRequest,
+		isPending: isLoadingUpdateEmailRequest
+	} = useMutation({
+		mutationKey: ['email update request'],
+		mutationFn: () => emailUpdateService.requestUpdateCallback(),
+		onSuccess: () => {
+			toast.success(
+				'Письмо для смены почты отправлено на вашу текущую почту'
+			)
+		},
+		onError: error => {
+			toastMessageHandler(error)
+		}
+	})
+
+	return { emailUpdateRequest, isLoadingUpdateEmailRequest }
+}

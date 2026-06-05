@@ -1,5 +1,4 @@
 'use client'
-
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Dispatch, SetStateAction } from 'react'
 import { useForm } from 'react-hook-form'
@@ -8,28 +7,28 @@ import { Button, FieldGroup, FormField } from '@/shared/components/ui'
 
 import { useEmailUpdateRequestMutation } from '../hooks'
 import {
-	EmailUpdateRequestData,
+	EmailUpdateRequestFormData,
 	EmailUpdateRequestSchema
 } from '../schemas/email-update.schema'
 
 export const UpdateEmailRequestForm = ({
-	setStep
+	setStep,
+	tokenCallback
 }: {
 	setStep: Dispatch<SetStateAction<'email' | 'code'>>
+	tokenCallback: string
 }) => {
-	const form = useForm<EmailUpdateRequestData>({
+	const form = useForm<EmailUpdateRequestFormData>({
 		resolver: zodResolver(EmailUpdateRequestSchema),
-		defaultValues: {
-			email: ''
-		}
+		defaultValues: { email: '' }
 	})
-
 	const { emailUpdateRequest, isLoadingUpdateEmailRequest } =
 		useEmailUpdateRequestMutation(setStep)
 
-	const onSubmit = (values: EmailUpdateRequestData) => {
-		emailUpdateRequest(values)
+	const onSubmit = (values: EmailUpdateRequestFormData) => {
+		emailUpdateRequest({ ...values, tokenCallback })
 	}
+
 	return (
 		<form onSubmit={form.handleSubmit(onSubmit)}>
 			<FieldGroup>

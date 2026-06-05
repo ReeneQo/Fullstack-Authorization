@@ -1,5 +1,4 @@
 'use client'
-
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 
@@ -8,22 +7,23 @@ import { Button, FieldGroup, FormField } from '@/shared/components/ui'
 import { useEmailUpdateConfirmMutation } from '../hooks'
 import {
 	EmailConfirmSchema,
-	EmailUpdateConfirmData
+	EmailUpdateConfirmFormData
 } from '../schemas/email-update.schema'
 
-export const UpdateEmailConfirmForm = () => {
-	const form = useForm<EmailUpdateConfirmData>({
+export const UpdateEmailConfirmForm = ({
+	tokenCallback
+}: {
+	tokenCallback: string
+}) => {
+	const form = useForm<EmailUpdateConfirmFormData>({
 		resolver: zodResolver(EmailConfirmSchema),
-		defaultValues: {
-			token: ''
-		}
+		defaultValues: { token: '' }
 	})
-
 	const { emailUpdateConfirm, isLoadingUpdateEmailConfirm } =
 		useEmailUpdateConfirmMutation()
 
-	const onSubmitConfirm = (values: EmailUpdateConfirmData) => {
-		emailUpdateConfirm(values)
+	const onSubmitConfirm = (values: EmailUpdateConfirmFormData) => {
+		emailUpdateConfirm({ ...values, tokenCallback })
 	}
 
 	return (

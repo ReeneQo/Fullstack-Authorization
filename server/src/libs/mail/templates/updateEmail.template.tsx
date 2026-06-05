@@ -2,13 +2,13 @@ import {Html} from '@react-email/html'
 import * as React from 'react'
 import {Body, Heading, Link, Tailwind, Text} from '@react-email/components'
 
-interface ResetPasswordTemplateProps {
+interface UpdateEmailTemplateProps {
 	token: string;
 }
 
 export const UpdateEmailTemplate = ({
 	token
-}: ResetPasswordTemplateProps) => {
+}: UpdateEmailTemplateProps) => {
 
 	return (
 			<Tailwind>

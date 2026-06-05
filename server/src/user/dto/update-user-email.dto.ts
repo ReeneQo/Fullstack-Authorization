@@ -1,4 +1,4 @@
-import { IsEmail, IsNotEmpty, IsString } from 'class-validator'
+import { IsEmail, IsNotEmpty, IsString, IsUUID } from 'class-validator';
 
 export class UpdateUserEmailDto {
 	@IsString({ message: 'Email должен быть строкой' })
@@ -8,4 +8,7 @@ export class UpdateUserEmailDto {
 		{ message: 'Неверный формат почты пример: example@example.com' }
 	)
 	email!: string;
+
+	@IsUUID('4')
+	tokenCallback!: string;
 }
