@@ -14,3 +14,9 @@ declare module 'express-serve-static-core' {
 		user?: User;
 	}
 }
+
+declare module 'express' {
+	interface Request {
+		user?: User
+	}
+}

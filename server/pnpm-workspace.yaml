@@ -1,0 +1,8 @@
+allowBuilds:
+  argon2: true
+  sharp: true
+  prisma: true
+  '@prisma/engines': true
+  '@nestjs/core': true
+  unrs-resolver: true
+
