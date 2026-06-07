@@ -17,8 +17,10 @@ export class providerGuard implements CanActivate {
 
 		const provider = request.params.provider;
 
+		const providerName = Array.isArray(provider) ? provider[0] : provider;
+
 		const providerInstance =
-			this.providerService.findServiceByName(provider);
+			this.providerService.findServiceByName(providerName);
 
 		if (!providerInstance) {
 			throw new NotFoundException(`Провайдер: ${provider} не был найден`);
