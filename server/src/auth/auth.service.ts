@@ -10,6 +10,7 @@ import {
 	ConflictException,
 	Injectable,
 	InternalServerErrorException,
+	NotFoundException,
 	UnauthorizedException
 } from '@nestjs/common';
 
@@ -100,7 +101,7 @@ export class AuthService {
 
 		if (!providerInstance) {
 			throw new BadRequestException(
-				`Провайдер ${providerInstance} не поддерживается`
+				`Провайдер - ${provider} не поддерживается`
 			);
 		}
 
@@ -130,6 +131,17 @@ export class AuthService {
 			return user;
 		}
 
+		const duplicateEmail = await this.prismaService.user.findUnique({
+			where: { email: profile.email },
+			select: { id: true }
+		});
+
+		if (duplicateEmail) {
+			throw new ConflictException(
+				'Email занят, войдите паролем и привяжите Google в настройках'
+			);
+		}
+
 		const user = await this.userService.createUser(
 			profile.email,
 			null,
@@ -151,6 +163,117 @@ export class AuthService {
 		});
 
 		return user;
+	}
+
+	public async extractLinkProfile(
+		provider: string,
+		code: string,
+		userId: string
+	) {
+		const providerInstance =
+			this.providerService.findServiceByName(provider);
+
+		if (!providerInstance) {
+			throw new BadRequestException(
+				`Провайдер - ${provider} не поддерживается`
+			);
+		}
+
+		const user = await this.prismaService.user.findUnique({
+			where: { id: userId }
+		});
+
+		if (!user) {
+			throw new NotFoundException('Пользователь не найден');
+		}
+
+		const profile = await providerInstance.findUserByCode(code, true);
+
+		if (!profile) {
+			throw new BadGatewayException('Профиль пользователя не найден');
+		}
+
+		const currentAccount = await this.prismaService.account.findFirst({
+			where: {
+				providerId: String(profile.id),
+				provider: profile.provider
+			},
+			select: { userId: true }
+		});
+
+		if (currentAccount) {
+			if (currentAccount.userId === userId) {
+				return user;
+			}
+
+			throw new ConflictException(
+				'Этот сервис уже привязан к аккаунту другого человека'
+			);
+		}
+
+		try {
+			await this.prismaService.account.create({
+				data: {
+					userId,
+					type: profile.provider.toUpperCase(),
+					provider: profile.provider,
+					providerId: String(profile.id),
+					accessToken: profile.access_token,
+					refreshToken: profile.refresh_token,
+					expiresAt: String(profile.expires_at)
+				}
+			});
+		} catch (e) {
+			if (
+				e instanceof Prisma.PrismaClientKnownRequestError &&
+				e.code === 'P2002'
+			) {
+				throw new ConflictException(
+					'Этот сервис уже привязан к аккаунту'
+				);
+			}
+			throw e;
+		}
+
+		return user;
+	}
+
+	public async unlinkProfile(provider: string, userId: string) {
+		const user = await this.prismaService.user.findUnique({
+			where: { id: userId },
+			select: { password: true }
+		});
+
+		if (!user) {
+			throw new NotFoundException('Пользователь не найден');
+		}
+
+		const targetAccount = await this.prismaService.account.findFirst({
+			where: { userId: userId, provider: provider },
+			select: { id: true }
+		});
+
+		if (!targetAccount) {
+			throw new NotFoundException(
+				'Этот сервис не привязан к вашему аккаунту'
+			);
+		}
+
+		const accounts = await this.prismaService.account.count({
+			where: { userId: userId }
+		});
+
+		const hasPassword = user.password !== null;
+
+		if (!hasPassword && accounts <= 1) {
+			throw new BadRequestException(
+				'Установите пароль перед отвязкой единственного способа входа'
+			);
+		}
+
+		await this.prismaService.account.deleteMany({
+			where: { userId: userId, provider: provider }
+		});
 	}
 
 	public async addPasswordOauth(userId: string, dto: AddPasswordOauthDto) {
