@@ -45,7 +45,7 @@ export function ChangePassword() {
 				<FieldGroup>
 					<FormField
 						control={form.control}
-						placeholder='******'
+						placeholder='*******'
 						name='password'
 						label='Пароль'
 						type='password'

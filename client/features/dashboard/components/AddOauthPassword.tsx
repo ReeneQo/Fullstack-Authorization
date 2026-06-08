@@ -64,6 +64,7 @@ export function AddOauthPassword() {
 						<FormField
 							control={form.control}
 							name='password'
+							type='password'
 							label='Добавьте пароль'
 							placeholder='Добавьте пароль'
 							isDisabled={isLoadingPasswordAdd || isLoadingUser}
@@ -71,6 +72,7 @@ export function AddOauthPassword() {
 						<FormField
 							control={form.control}
 							name='passwordRepeat'
+							type='password'
 							label='Подтвердите пароль'
 							placeholder='Подтвердите пароль'
 							isDisabled={isLoadingPasswordAdd || isLoadingUser}
