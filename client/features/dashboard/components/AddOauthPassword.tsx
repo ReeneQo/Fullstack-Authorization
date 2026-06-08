@@ -42,7 +42,7 @@ export function AddOauthPassword() {
 	}
 
 	return (
-		<Card className='w-full max-w-125'>
+		<Card className='w-full max-w-145'>
 			<CardHeader className='flex flex-row items-center justify-between'>
 				<CardTitle className='text-2xl'>Обновление пароля</CardTitle>
 				{isLoadingUser ? (
