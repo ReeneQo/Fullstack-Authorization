@@ -9,9 +9,14 @@ import {
 } from '@nestjs/common';
 
 import { User } from '../../generated/prisma/browser';
+import { Prisma } from '../../generated/prisma/client';
 
 import { UpdateUserPasswordDto } from './dto/update-user-password.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+
+type UserWithRelations = Prisma.UserGetPayload<{
+	include: { account: true };
+}> & { avatarUrl: string | null };
 
 @Injectable()
 export class UserService {
@@ -20,7 +25,7 @@ export class UserService {
 		private readonly storageService: StorageService
 	) {}
 
-	async findById(id: string): Promise<User | null> {
+	async findById(id: string): Promise<UserWithRelations | null> {
 		const user = await this.prismaService.user.findUnique({
 			where: {
 				id
@@ -35,13 +40,13 @@ export class UserService {
 		}
 
 		const avatarUrl = await this.resolveAvatarUrl(
-			user?.picture,
-			user?.avatarKey
+			user.picture,
+			user.avatarKey
 		);
 
 		return {
 			...user,
-			avatarKey: avatarUrl
+			avatarUrl
 		};
 	}
 

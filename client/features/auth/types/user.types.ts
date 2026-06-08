@@ -37,4 +37,5 @@ export interface IUser {
 	isTwoFactorEnabled: boolean
 	method: EnumAuthMethod
 	account: IAccount[]
+	avatarUrl: string
 }

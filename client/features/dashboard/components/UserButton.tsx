@@ -37,8 +37,8 @@ export function UserButton({ user }: { user: IUser }) {
 					<Avatar size='lg'>
 						<AvatarImage
 							alt={user.displayName}
-							src={user.avatarKey ?? ''}
-						></AvatarImage>
+							src={user.avatarUrl}
+						/>
 						<AvatarFallback>
 							{user.displayName.slice(0, 1)}
 						</AvatarFallback>
@@ -58,13 +58,17 @@ export function UserButton({ user }: { user: IUser }) {
 							<LuAperture className='mr-2 size-4' />
 							Обновить аватар
 						</DropdownMenuItem>
-						<DropdownMenuItem
-							disabled={isLoadingLogout || isLoadingAvatarDelete}
-							onClick={() => avatarDelete()}
-						>
-							<FaRegTrashAlt className='mr-2 size-4' />
-							Удалить аватар
-						</DropdownMenuItem>
+						{user.avatarKey && (
+							<DropdownMenuItem
+								disabled={
+									isLoadingLogout || isLoadingAvatarDelete
+								}
+								onClick={() => avatarDelete()}
+							>
+								<FaRegTrashAlt className='mr-2 size-4' />
+								Удалить аватар
+							</DropdownMenuItem>
+						)}
 					</DropdownMenuContent>
 				</DropdownMenuTrigger>
 			</DropdownMenu>
