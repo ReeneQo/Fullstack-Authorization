@@ -12,5 +12,9 @@ export const pages = [
 	{
 		href: routes.dashboard.update.email,
 		label: 'Изменить почту'
+	},
+	{
+		href: routes.dashboard.oauth.services,
+		label: 'Cервисы'
 	}
 ]

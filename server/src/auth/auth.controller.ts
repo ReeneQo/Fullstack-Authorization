@@ -5,7 +5,9 @@ import { SessionsService } from '@/sessions/sessions.service';
 import {
 	BadRequestException,
 	Body,
+	ConflictException,
 	Controller,
+	Delete,
 	Get,
 	HttpCode,
 	HttpStatus,
@@ -67,28 +69,6 @@ export class AuthController {
 
 	@Throttle({ default: { limit: 10, ttl: 60_000 } })
 	@UseGuards(providerGuard)
-	@Get('/oauth/callback/:provider')
-	public async callback(
-		@Req() req: Request,
-		@Res() res: Response,
-		@Query('code') code: string,
-		@Param('provider') provider: string
-	) {
-		if (!code) {
-			throw new BadRequestException(
-				'Код авторизации не был предоставлен'
-			);
-		}
-
-		const user = await this.authService.extractProfile(provider, code);
-		await this.sessionService.saveSession(req, user);
-		return res.redirect(
-			`${this.configService.getOrThrow<string>('ALLOWED_ORIGIN')}/dashboard/settings`
-		);
-	}
-
-	@Throttle({ default: { limit: 10, ttl: 60_000 } })
-	@UseGuards(providerGuard)
 	@Get('/oauth/connect/:provider')
 	public async connect(@Param('provider') provider: string) {
 		const providerInstance =
@@ -97,6 +77,94 @@ export class AuthController {
 		return {
 			url: providerInstance?.getAuthUrl()
 		};
+	}
+
+	@Throttle({ default: { limit: 10, ttl: 60_000 } })
+	@UseGuards(providerGuard)
+	@Get('/oauth/callback/:provider')
+	public async callback(
+		@Req() req: Request,
+		@Res() res: Response,
+		@Query('code') code: string,
+		@Param('provider') provider: string
+	) {
+		const origin = this.configService.getOrThrow<string>('ALLOWED_ORIGIN');
+
+		if (!code) {
+			throw new BadRequestException(
+				'Код авторизации не был предоставлен'
+			);
+		}
+
+		try {
+			const user = await this.authService.extractProfile(provider, code);
+			await this.sessionService.saveSession(req, user);
+			return res.redirect(`${origin}/dashboard/settings`);
+		} catch (error) {
+			if (error instanceof ConflictException) {
+				return res.redirect(`${origin}/auth/login?error=emailExist`);
+			}
+			if (error) {
+				return res.redirect(`${origin}/auth/login?error=serverError`);
+			}
+		}
+	}
+
+	@Throttle({ default: { limit: 10, ttl: 60_000 } })
+	@UseGuards(providerGuard)
+	@Authorization()
+	@Get('/oauth/link/connect/:provider')
+	public async connectLink(@Param('provider') provider: string) {
+		const providerInstance =
+			this.providerService.findServiceByName(provider);
+
+		return {
+			url: providerInstance?.getAuthUrl(true)
+		};
+	}
+
+	@Throttle({ default: { limit: 10, ttl: 60_000 } })
+	@UseGuards(providerGuard)
+	@Authorization()
+	@Get('/oauth/link/callback/:provider')
+	public async link(
+		@Res() res: Response,
+		@Query('code') code: string,
+		@Param('provider') provider: string,
+		@Authorized('id') userId: string
+	) {
+		const origin = this.configService.getOrThrow<string>('ALLOWED_ORIGIN');
+
+		if (!code) {
+			return res.redirect(`${origin}/dashboard/settings?error=no_code`);
+		}
+
+		try {
+			await this.authService.extractLinkProfile(provider, code, userId);
+			return res.redirect(
+				`${origin}/dashboard/oauth/services?code=success`
+			);
+		} catch (error) {
+			if (error instanceof ConflictException) {
+				return res.redirect(
+					`${origin}/dashboard/oauth/services?code=already_linked`
+				);
+			}
+			return res.redirect(
+				`${origin}/dashboard/oauth/services?code=link_failed`
+			);
+		}
+	}
+
+	@Throttle({ default: { limit: 10, ttl: 60_000 } })
+	@UseGuards(providerGuard)
+	@Authorization()
+	@Delete('/oauth/link/unlink/:provider')
+	public async unlink(
+		@Param('provider') provider: string,
+		@Authorized('id') userId: string
+	) {
+		return this.authService.unlinkProfile(provider, userId);
 	}
 
 	@Throttle({ default: { limit: 3, ttl: 60_000 } })

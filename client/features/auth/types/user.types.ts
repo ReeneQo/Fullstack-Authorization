@@ -36,5 +36,5 @@ export interface IUser {
 	isVerified: boolean
 	isTwoFactorEnabled: boolean
 	method: EnumAuthMethod
-	accounts: IAccount[]
+	account: IAccount[]
 }

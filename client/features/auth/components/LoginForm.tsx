@@ -1,8 +1,10 @@
 'use client'
 
 import { zodResolver } from '@hookform/resolvers/zod'
+import { error } from 'console'
 import { useTheme } from 'next-themes'
-import { useState } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { useEffect, useState } from 'react'
 import ReCAPTCHA from 'react-google-recaptcha'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
@@ -15,10 +17,27 @@ import { LoginFormData, LoginSchema } from '../schemas'
 import { AuthWrapper } from './AuthWrapper'
 import { routes } from '@/core/configs/routes'
 
+const errorMessages: Record<string, string> = {
+	emailExist:
+		'Этот email уже зарегистрирован. Войдите паролем и привяжите аккаунт в настройках.',
+	serverError: 'Ошибка сервера'
+}
+
 export const LoginForm = () => {
+	const router = useRouter()
+	const searchParams = useSearchParams()
 	const { theme } = useTheme()
 	const [recaptchaValue, setRecaptchaValue] = useState<string | null>(null)
 	const [show2FA, setShow2FA] = useState<boolean>(false)
+
+	useEffect(() => {
+		const code = searchParams.get('error')
+
+		if (code) {
+			toast.error(errorMessages[code] ?? 'Ошибка входа')
+			router.replace(window.location.pathname)
+		}
+	}, [searchParams, router])
 
 	const form = useForm<LoginFormData>({
 		resolver: zodResolver(LoginSchema),

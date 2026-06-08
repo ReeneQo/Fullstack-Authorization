@@ -14,11 +14,11 @@ export class BaseOauthService {
 	protected async extractUserInfo(data: any): Promise<TypeUserInfo> {
 		return { ...data, provider: this.options.name };
 	}
-	public getAuthUrl() {
+	public getAuthUrl(link?: boolean) {
 		const query = new URLSearchParams({
 			response_type: 'code',
 			client_id: this.options.client_id,
-			redirect_uri: this.getRedirectUrl(),
+			redirect_uri: this.getRedirectUrl(link),
 			scope: (this.options.scopes ?? []).join(' '),
 			access_type: 'offline',
 			prompt: 'select_account'
@@ -27,14 +27,17 @@ export class BaseOauthService {
 		return `${this.options.authorize_url}?${query}`;
 	}
 
-	public async findUserByCode(code: string): Promise<TypeUserInfo> {
+	public async findUserByCode(
+		code: string,
+		link?: boolean
+	): Promise<TypeUserInfo> {
 		const client_id = this.options.client_id;
 		const client_secret = this.options.client_secret;
 		const tokenQuery = new URLSearchParams({
 			client_id,
 			client_secret,
 			code,
-			redirect_uri: this.getRedirectUrl(),
+			redirect_uri: this.getRedirectUrl(link),
 			grant_type: 'authorization_code'
 		});
 		const tokenRequest = await fetch(this.options.access_url, {
@@ -81,8 +84,8 @@ export class BaseOauthService {
 		};
 	}
 
-	public getRedirectUrl() {
-		return `${this.BASE_URL}/auth/oauth/callback/${this.options.name}`;
+	public getRedirectUrl(link?: boolean) {
+		return `${this.BASE_URL}/auth/oauth${link ? '/link/callback' : '/callback'}/${this.options.name}`;
 	}
 
 	set baseUrl(value: string) {
