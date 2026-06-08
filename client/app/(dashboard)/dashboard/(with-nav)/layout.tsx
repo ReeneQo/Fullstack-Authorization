@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 
-import { DashboardNav } from '@/widgets'
+import { DashboardShell } from '@/widgets'
 
 export const metadata: Metadata = {
 	title: {
@@ -16,8 +16,7 @@ export default function Layout({
 }>) {
 	return (
 		<div className='flex min-h-screen w-full flex-col items-center justify-center px-4'>
-			<DashboardNav />
-			{children}
+			<DashboardShell>{children}</DashboardShell>
 		</div>
 	)
 }
