@@ -7,13 +7,13 @@ import {
 	CardContent,
 	CardHeader,
 	CardTitle,
-	Loading
+	Loading,
+	Skeleton
 } from '@/shared/components/ui'
 import { useProfile } from '@/shared/hooks/useProfile'
 
-import { UpdateEmailRequestForm } from './UpdateEmailRequestForm'
-import { UserButton, UserButtonLoading } from './UserButton'
 import { UpdateEmailConfirmForm } from './UpdateEmailConfirmForm'
+import { UpdateEmailRequestForm } from './UpdateEmailRequestForm'
 
 export function UpdateEmailForm() {
 	const { user, isLoadingUser } = useProfile()
@@ -21,8 +21,12 @@ export function UpdateEmailForm() {
 	const searchParams = useSearchParams()
 	const tokenCallback = searchParams.get('token')
 
-	if (!user) {
-		return null
+	if (isLoadingUser || !user) {
+		return (
+			<div className='w-full max-w-145 space-y-2'>
+				<Skeleton className='h-[235px] w-full' />
+			</div>
+		)
 	}
 
 	if (!tokenCallback) return null
@@ -31,11 +35,6 @@ export function UpdateEmailForm() {
 		<Card className='w-full max-w-145'>
 			<CardHeader className='flex flex-row items-center justify-between'>
 				<CardTitle className='text-2xl'>Обновление почты</CardTitle>
-				{isLoadingUser ? (
-					<UserButtonLoading />
-				) : (
-					<UserButton user={user.data} />
-				)}
 			</CardHeader>
 			<CardContent>
 				{isLoadingUser ? (

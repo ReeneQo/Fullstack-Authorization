@@ -1,7 +1,7 @@
 'use client'
-
+import { Eye, EyeOff } from 'lucide-react'
 import Link from 'next/link'
-import { ChangeEventHandler } from 'react'
+import { useState } from 'react'
 import {
 	type Control,
 	Controller,
@@ -35,6 +35,9 @@ export function FormField<T extends FieldValues>({
 	isDisabled,
 	forgetPassword = false
 }: FormFieldProps<T>) {
+	const [visible, setVisible] = useState(false)
+	const isPassword = type === 'password'
+
 	return (
 		<Controller
 			name={name}
@@ -56,6 +59,7 @@ export function FormField<T extends FieldValues>({
 					) : (
 						<FieldLabel htmlFor={field.name}>{label}</FieldLabel>
 					)}
+
 					{type === 'switch' && !forgetPassword ? (
 						<Switch
 							id={field.name}
@@ -63,6 +67,37 @@ export function FormField<T extends FieldValues>({
 							onCheckedChange={field.onChange}
 							disabled={isDisabled}
 						/>
+					) : isPassword ? (
+						<div className='relative'>
+							<Input
+								{...field}
+								id={field.name}
+								type={visible ? 'text' : 'password'}
+								aria-invalid={fieldState.invalid}
+								placeholder={placeholder}
+								autoComplete={autoComplete}
+								disabled={isDisabled}
+								className='pr-10'
+							/>
+							<button
+								type='button'
+								onClick={() => setVisible(v => !v)}
+								disabled={isDisabled}
+								tabIndex={-1}
+								aria-label={
+									visible
+										? 'Скрыть пароль'
+										: 'Показать пароль'
+								}
+								className='text-muted-foreground hover:text-foreground absolute top-1/2 right-3 -translate-y-1/2 transition disabled:opacity-50'
+							>
+								{visible ? (
+									<EyeOff className='size-4' />
+								) : (
+									<Eye className='size-4' />
+								)}
+							</button>
+						</div>
 					) : (
 						<Input
 							{...field}
@@ -74,6 +109,7 @@ export function FormField<T extends FieldValues>({
 							disabled={isDisabled}
 						/>
 					)}
+
 					{fieldState.invalid && (
 						<FieldError errors={[fieldState.error]} />
 					)}

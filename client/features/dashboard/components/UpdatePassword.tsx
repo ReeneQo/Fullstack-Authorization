@@ -66,6 +66,7 @@ export function UpdatePasswordForm() {
 						<FormField
 							control={form.control}
 							name='currentPassword'
+							type='password'
 							label='Настоящий пароль'
 							placeholder='Настоящий пароль'
 							isDisabled={
@@ -75,6 +76,7 @@ export function UpdatePasswordForm() {
 						<FormField
 							control={form.control}
 							name='password'
+							type='password'
 							label='Новый пароль'
 							placeholder='Новый пароль'
 							isDisabled={
@@ -83,6 +85,7 @@ export function UpdatePasswordForm() {
 						/>
 						<FormField
 							control={form.control}
+							type='password'
 							name='passwordRepeat'
 							label='Подтвердите новый пароль'
 							placeholder='Подтвердите новый пароль'

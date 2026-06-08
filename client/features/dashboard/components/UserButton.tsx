@@ -34,7 +34,7 @@ export function UserButton({ user }: { user: IUser }) {
 		<>
 			<DropdownMenu>
 				<DropdownMenuTrigger>
-					<Avatar>
+					<Avatar size='lg'>
 						<AvatarImage
 							alt={user.displayName}
 							src={user.avatarKey ?? ''}
