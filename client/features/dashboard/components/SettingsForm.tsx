@@ -41,6 +41,8 @@ export function SettingsForm() {
 		return null
 	}
 
+	const hasPassword = user.data.password !== null
+
 	return (
 		<Card className='w-full max-w-145'>
 			<CardHeader className='flex flex-row items-center justify-between'>
@@ -70,27 +72,29 @@ export function SettingsForm() {
 							isDisabled={isLoadingUpdate || isLoadingUser}
 						/>
 
-						<div className='flex flex-row items-center justify-between space-x-5 rounded-lg border p-3'>
-							<div className='space-y-1'>
-								<h2 className='font-bold'>
-									Двухфакторная аутентификация
-								</h2>
-								<p className='text-[14px] font-normal text-balance text-gray-400'>
-									Включите двухфакторную аутентификацию для
-									вашей учетной записи
-								</p>
+						{hasPassword && (
+							<div className='flex flex-row items-center justify-between space-x-5 rounded-lg border p-3'>
+								<div className='space-y-1'>
+									<h2 className='font-bold'>
+										Двухфакторная аутентификация
+									</h2>
+									<p className='text-[14px] font-normal text-balance text-gray-400'>
+										Включите двухфакторную аутентификацию
+										для вашей учетной записи
+									</p>
+								</div>
+								<div>
+									<FormField
+										control={form.control}
+										name='isTwoFactorEnabled'
+										type='switch'
+										isDisabled={
+											isLoadingUpdate || isLoadingUser
+										}
+									/>
+								</div>
 							</div>
-							<div>
-								<FormField
-									control={form.control}
-									name='isTwoFactorEnabled'
-									type='switch'
-									isDisabled={
-										isLoadingUpdate || isLoadingUser
-									}
-								/>
-							</div>
-						</div>
+						)}
 					</FieldGroup>
 					<Button
 						type='submit'
