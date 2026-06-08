@@ -11,7 +11,7 @@ export const DashboardNav = () => {
 	const pathname = usePathname()
 
 	return (
-		<nav className='mb-2 w-full max-w-125'>
+		<nav className='mb-2 w-full max-w-145'>
 			<ul className='flex w-full gap-1 max-md:flex-col md:flex-row'>
 				{pages.map(item => {
 					const isActive = pathname === item.href

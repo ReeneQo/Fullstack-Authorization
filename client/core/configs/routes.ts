@@ -10,6 +10,9 @@ class Routes {
 		update: {
 			password: '/dashboard/update/password',
 			email: '/dashboard/update/email'
+		},
+		oauth: {
+			services: '/dashboard/oauth/services'
 		}
 	}
 	oauth = {
@@ -37,6 +40,10 @@ class Routes {
 				callback: '/user/update/email/request/callback'
 			},
 			password: '/user/update/password'
+		},
+		oauth: {
+			unlink: (provider: string) => `/auth/oauth/link/unlink/${provider}`,
+			link: (provider: string) => `/auth/oauth/link/connect/${provider}`
 		}
 	}
 }
