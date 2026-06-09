@@ -20,6 +20,9 @@ async function bootstrap() {
 	const config = app.get(ConfigService);
 
 	const redisClient = app.get<RedisClientType>(REDIS_CLIENT);
+	const sessionMaxAge = parseMs(
+		config.getOrThrow<string>('SESSION_MAX_AGE')
+	);
 
 	app.use(helmet());
 
@@ -39,7 +42,7 @@ async function bootstrap() {
 			saveUninitialized: false,
 			cookie: {
 				domain: config.getOrThrow<string>('SESSION_DOMAIN'),
-				maxAge: parseMs(config.getOrThrow<string>('SESSION_MAX_AGE')),
+				maxAge: sessionMaxAge,
 				httpOnly: parseBoolean(
 					config.getOrThrow<string>('SESSION_HTTP_ONLY')
 				),
@@ -51,7 +54,7 @@ async function bootstrap() {
 			store: new RedisStore({
 				client: redisClient,
 				prefix: config.getOrThrow<string>('SESSION_FOLDER'),
-				ttl: parseMs(config.getOrThrow<string>('SESSION_MAX_AGE'))
+				ttl: Math.floor(sessionMaxAge / 1000)
 			})
 		})
 	);

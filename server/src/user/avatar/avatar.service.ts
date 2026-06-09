@@ -1,6 +1,6 @@
 import { fileTypeFromBuffer } from 'file-type';
 import sharp from 'sharp';
-import uuid from 'uuid';
+import { v4 } from 'uuid';
 
 import { PrismaService } from '@/prisma/prisma.service';
 import { StorageService } from '@/storage/storage.service';
@@ -59,7 +59,7 @@ export class AvatarService {
 			.webp({ quality: 85 })
 			.toBuffer();
 
-		const newKey = `avatar/user/${userId}/${uuid.v4()}.webp`;
+		const newKey = `avatar/user/${userId}/${v4()}.webp`;
 
 		await this.storageService.upload(newKey, processedBuffer, 'image/webp');
 
