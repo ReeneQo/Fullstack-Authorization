@@ -1,4 +1,3 @@
-import { Authorization } from '@/auth/decorators/auth.decorator';
 import { Authorized } from '@/auth/decorators/authorized.decorator';
 import { AuthGuard } from '@/auth/guards/auth.guard';
 import {

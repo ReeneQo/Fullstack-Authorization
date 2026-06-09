@@ -1,6 +1,7 @@
 'use client'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Camera } from 'lucide-react'
+import Image from 'next/image'
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 
@@ -77,9 +78,12 @@ export function AvatarUploadDialog({
 											className='border-muted-foreground/40 hover:border-muted-foreground relative size-32 overflow-hidden rounded-full border-2 border-dashed transition disabled:opacity-50'
 										>
 											{preview ? (
-												<img
+												<Image
 													src={preview}
 													alt='Превью аватара'
+													width={128}
+													height={128}
+													unoptimized
 													className='size-full object-cover'
 												/>
 											) : (

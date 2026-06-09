@@ -1,7 +1,6 @@
 'use client'
 
 import { zodResolver } from '@hookform/resolvers/zod'
-import { error } from 'console'
 import { useTheme } from 'next-themes'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
