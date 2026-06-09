@@ -67,7 +67,7 @@ export class StorageService implements OnModuleInit {
 	private async createBucket(bucketName: string) {
 		try {
 			await this.s3.send(new CreateBucketCommand({ Bucket: bucketName }));
-		} catch (error) {
+		} catch {
 			throw new InternalServerErrorException(
 				'Ошибка во время создания бакета'
 			);
@@ -88,7 +88,7 @@ export class StorageService implements OnModuleInit {
 					ContentType: contentType
 				})
 			);
-		} catch (error) {
+		} catch {
 			throw new InternalServerErrorException(
 				'Ошибка во время загрузки файла'
 			);
@@ -103,7 +103,9 @@ export class StorageService implements OnModuleInit {
 					Bucket: this.avatarsBucket
 				})
 			);
-		} catch (error) {}
+		} catch {
+			return;
+		}
 	}
 
 	public async getPresignedUrl(

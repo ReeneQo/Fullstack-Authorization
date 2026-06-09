@@ -4,7 +4,6 @@ import { APP_GUARD } from '@nestjs/core';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 
 import { AuthModule } from './auth/auth.module';
-import { AuthGuard } from './auth/guards/auth.guard';
 import { TwoFactorAuthModule } from './auth/two-factor-auth/two-factor-auth.module';
 import storageConfig from './config/storage.config';
 import { EmailUpdateModule } from './email-update/email-update.module';

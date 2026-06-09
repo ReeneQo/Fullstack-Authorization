@@ -21,13 +21,12 @@ export class TelegramService {
 	) {}
 
 	async verifyHash(userDto: TelegramUserDto, req: Request) {
-		let dataToCheck = this.prepareDataForHash(userDto);
+		const dataToCheck = this.prepareDataForHash(userDto);
 		const botToken = this.configService.getOrThrow<string>(
 			'TELEGRAM_BOT_SECRET'
 		);
 		const secretKey = crypto.createHash('sha256').update(botToken).digest();
 		this.validateHash(dataToCheck, secretKey, userDto);
-		console.log('success');
 		return this.registerTelegram(req, userDto);
 	}
 
@@ -36,7 +35,7 @@ export class TelegramService {
 			throw new UnauthorizedException('NO USER DATA');
 		}
 
-		const { hash, ...data } = userDto;
+		const { hash: _hash, ...data } = userDto;
 
 		const sortedKeys = Object.keys(data).sort();
 

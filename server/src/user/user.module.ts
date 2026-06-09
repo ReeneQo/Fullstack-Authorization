@@ -3,9 +3,8 @@ import { MailModule } from '@/libs/mail/mail.module';
 import { MailConfirmationModule } from '@/mail-confirmation/mail-confirmation.module';
 import { SessionsModule } from '@/sessions/sessions.module';
 import { StorageModule } from '@/storage/storage.module';
-import { forwardRef, Module } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 
-import { AvatarModule } from './avatar/avatar.module';
 import { UserController } from './user.controller';
 import { UserService } from './user.service';
 

@@ -3,7 +3,6 @@ import { type Request } from 'express';
 import {
 	Body,
 	Controller,
-	Get,
 	HttpCode,
 	HttpStatus,
 	Post,
